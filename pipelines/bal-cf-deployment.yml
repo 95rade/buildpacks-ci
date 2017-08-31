@@ -137,6 +137,7 @@ jobs:
             ops_files:
               - diego-release-artifacts/use-diego-dev-release.yml
               - buildpacks-ci/deployments/operations/no-canaries.yml
+              - buildpacks-ci/deployments/operations/bal-static-ip.yml
               - cf-deployment/operations/gcp.yml
               - cf-deployment/operations/scale-to-one-az.yml
         on_failure:

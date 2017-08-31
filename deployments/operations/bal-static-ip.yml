@@ -1,0 +1,8 @@
+- path: /instance_groups/name=router/networks
+  type: remove
+
+# - type: replace
+#   path: /instance_groups/name=router/networks
+#   value:
+#   - name: default
+#     static_ips: [10.150.0.239]
