@@ -13,8 +13,8 @@ resource_types:
     source:
       repository: cloudfoundry/bosh-deployment-resource
 resources:
-  - name: concourse2tracker
-    type: concourse2tracker
+  # - name: concourse2tracker
+  #   type: concourse2tracker
 
   - name: buildpacks-ci
     type: git
@@ -29,18 +29,24 @@ resources:
       branch: {{buildpackapplifecycle-git-branch}}
       private_key: {{buildpackapplifecycle-private-key}}
 
-  - name: bal-master
-    type: git
-    source:
-      uri: {{buildpackapplifecycle-git-uri}}
-      branch: master
-      private_key: {{buildpackapplifecycle-private-key}}
+  # - name: bal-master
+  #   type: git
+  #   source:
+  #     uri: {{buildpackapplifecycle-git-uri}}
+  #     branch: master
+  #     private_key: {{buildpackapplifecycle-private-key}}
 
-  - name: cats-concourse-task
+  - name: cf-deployment
     type: git
     source:
-      uri: https://github.com/cloudfoundry/cats-concourse-task
+      uri: https://github.com/cloudfoundry/cf-deployment
       branch: master
+
+  # - name: cats-concourse-task
+  #   type: git
+  #   source:
+  #     uri: https://github.com/cloudfoundry/cats-concourse-task
+  #     branch: master
 
   - name: diego-release
     type: git
@@ -49,20 +55,26 @@ resources:
       branch: develop
       private_key: {{diego-release-private-key}}
 
-  - name: cf-release-rc
-    type: git
-    source:
-      uri: git@github.com:cloudfoundry/cf-release
-      branch: release-candidate
-      private_key: {{cf-release-private-key}}
+  # - name: cf-release-rc
+  #   type: git
+  #   source:
+  #     uri: git@github.com:cloudfoundry/cf-release
+  #     branch: release-candidate
+  #     private_key: {{cf-release-private-key}}
 
   - name: bal-cf-deployment
     type: bosh-deployment
     source:
       target: {{bal-bosh-target}}
       client: {{bal-bosh-client}}
-      client-secret: {{bal-bosh-client-secret}}
-      ca-cert: {{bal-bosh-ca-cert}}
+      client_secret: {{bal-bosh-client-secret}}
+      ca_cert: {{bal-bosh-ca-cert}}
+      vars_store:
+        provider: gcs
+        config:
+          bucket: bal-cf-deployment
+          file_name: vars-store.yml
+          json_key: {{bal-cf-deployment-gcs-service-account-key}}
       deployment: cf
 
   - name: gcp-stemcell
@@ -76,27 +88,12 @@ resources:
     source:
       url: {{concourse-job-failure-notifications-slack-webhook}}
 
-  - name: cf-bosh-release
-    type: bosh-io-release
-    source:
-      repository: cloudfoundry/cf-release
-
-  - name: cflinuxfs2-bosh-release
-    type: bosh-io-release
-    source:
-      repository: cloudfoundry/cflinuxfs2-release
-
-  - name: garden-runc-bosh-release
-    type: bosh-io-release
-    source:
-      repository: cloudfoundry/garden-runc-release
-
-  - name: deployments-buildpacks
-    type: git
-    source:
-      uri: {{deployments-git-uri}}
-      private_key: {{deployments-private-key}}
-      branch: master
+  # - name: deployments-buildpacks
+  #   type: git
+  #   source:
+  #     uri: {{deployments-git-uri}}
+  #     private_key: {{deployments-private-key}}
+  #     branch: master
 
 jobs:
   - name: unit-specs-linux
@@ -126,42 +123,22 @@ jobs:
           - get: bal-develop
             passed: [unit-specs-windows, unit-specs-linux]
             trigger: true
-          - get: cf-release
-            resource: cf-release-rc
-            attempts: 3
           - get: diego-release
-          - get: garden-runc-bosh-release
-            attempts: 3
-          - get: cf-bosh-release
-            attempts: 3
-          - get: cflinuxfs2-bosh-release
-            attempts: 3
+          - get: cf-deployment
           - get: gcp-stemcell
             attempts: 3
         - task: create-diego-release-with-bal-develop
           file: buildpacks-ci/tasks/create-diego-release-with-bal-develop/task.yml
-        # - task: generate-manifest
-        #   file: buildpacks-ci/tasks/generate-cf-and-diego-manifests-with-bal-dev/task.yml
-        #   params:
-        #     DEPLOYMENT_NAME: bal.buildpacks-gcp.ci
-        #     CI_CF_PASSWORD: {{ci-cf-password}}
-        #     BOSH_USER: {{bosh_user}}
-        #     BOSH_PASSWORD: {{gcp_bosh_lite_admin_password}}
-        #     BOSH_TARGET: bal.buildpacks-gcp.ci.cf-app.com
-        #     BOSH_LITE_NAME: bal.buildpacks-gcp.ci
-        #     RUBYGEM_MIRROR: {{rubygem-mirror}}
-        #     BOSH_LITE_DOMAIN_NAME: {{bosh-lite-domain-name}}
-        #     ROOTFS_RELEASE: cflinuxfs2
-        #     IAAS: gcp
-        #   privileged: true
-        # - task: create-diego-release
-        #   file: buildpacks-ci/tasks/create-diego-bosh-release-to-deploy/task.yml
-        #   privileged: true
         - put: bal-cf-deployment
           params:
-            manifest: generate-manifest-artifacts/bal.buildpacks-gcp.ci/manifest.yml
-            releases: []
+            manifest: cf-deployment/cf-deployment.yml
+            releases: [diego-release-artifacts/dev_releases/diego/*.tgz]
             stemcells: [gcp-stemcell/*.tgz]
+            ops_files:
+              - diego-release-artifacts/use-diego-dev-release.yml
+              - buildpacks-ci/deployments/operations/no-canaries.yml
+              - cf-deployment/operations/gcp.yml
+              - cf-deployment/operations/scale-to-one-az.yml
         on_failure:
           put: failure-alert
           params:
