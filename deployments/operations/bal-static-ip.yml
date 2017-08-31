@@ -1,4 +1,4 @@
-- path: /instance_groups/name=router/networks
+- path: /instance_groups/name=router/vm_extensions
   type: remove
 
 # - type: replace
