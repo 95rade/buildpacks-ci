@@ -1,5 +1,7 @@
 - path: /instance_groups/name=router/vm_extensions
   type: remove
+- path: /instance_groups/name=diego-brain/vm_extensions
+  type: remove
 
 # - type: replace
 #   path: /instance_groups/name=router/networks
