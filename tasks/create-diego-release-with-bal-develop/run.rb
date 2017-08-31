@@ -24,4 +24,5 @@ File.write("diego-release-artifacts/use-diego-dev-release.yml", "---
 - path: /releases/name=diego
   type: replace
   value:
+    name: diego
     version: #{version}")
