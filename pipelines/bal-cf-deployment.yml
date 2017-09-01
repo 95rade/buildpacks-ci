@@ -42,11 +42,11 @@ resources:
       uri: https://github.com/cloudfoundry/cf-deployment
       branch: master
 
-  # - name: cats-concourse-task
-  #   type: git
-  #   source:
-  #     uri: https://github.com/cloudfoundry/cats-concourse-task
-  #     branch: master
+  - name: cats-concourse-task
+    type: git
+    source:
+      uri: https://github.com/cloudfoundry/cats-concourse-task
+      branch: master
 
   - name: diego-release
     type: git
@@ -54,6 +54,12 @@ resources:
       uri: git@github.com:cloudfoundry/diego-release
       branch: develop
       private_key: {{diego-release-private-key}}
+
+  - name: cf-acceptance-tests
+    type: git
+    source:
+      uri: https://github.com/cloudfoundry/cf-acceptance-tests
+      branch: master
 
   # - name: cf-release-rc
   #   type: git
@@ -149,47 +155,41 @@ jobs:
             username: concourse
             icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
 
-  # - name: cats
-  #   serial: true
-  #   public: true
-  #   plan:
-  #     - aggregate:
-  #       - get: buildpacks-ci
-  #       - get: bal-develop
-  #         passed: [deploy-cf-and-diego-to-cf-release]
-  #         trigger: true
-  #       - get: cats-concourse-task-inp
-  #         resource: cats-concourse-task
-  #       - get: cf-release
-  #         resource: cf-release-rc
-  #         params:
-  #           submodules: [ src/github.com/cloudfoundry/cf-acceptance-tests/ ]
-  #         passed: [ deploy-cf-and-diego-to-cf-release ]
-  #     - do:
-  #       - task: copy-cf-acceptance-tests
-  #         file: buildpacks-ci/tasks/copy-cf-acceptance-tests/task.yml
-  #       - task: write-cats-config
-  #         file: buildpacks-ci/tasks/write-cats-config/task.yml
-  #         params:
-  #           CI_CF_USERNAME: {{ci-cf-username}}
-  #           CI_CF_PASSWORD: {{ci-cf-password}}
-  #           APPS_DOMAIN: bal.buildpacks-gcp.ci.cf-app.com
-  #           DIEGO_DOCKER_ON: true
-  #       - task: add-flake-attempts-to-cats
-  #         file: buildpacks-ci/tasks/add-flake-attempts-to-cats/task.yml
-  #       - task: cats
-  #         attempts: 3
-  #         file: cats-concourse-task/task.yml
-  #         params:
-  #           NODES: 12
-  #           CONFIG_FILE_PATH: integration_config.json
-  #       on_failure:
-  #         put: failure-alert
-  #         params:
-  #           text: "$BUILD_PIPELINE_NAME $BUILD_JOB_NAME job on Concourse failed! \n Check: $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME"
-  #           channel: {{concourse-job-failure-notifications-slack-channel}}
-  #           username: concourse
-  #           icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
+  - name: cats
+    serial: true
+    public: true
+    plan:
+      - aggregate:
+        - get: buildpacks-ci
+        - get: bal-develop
+          passed: [deploy-cf-and-diego-to-cf-release]
+          trigger: true
+        - get: cats-concourse-task-inp
+          resource: cats-concourse-task
+        - get: cf-acceptance-tests
+      - do:
+        - task: write-cats-config
+          file: buildpacks-ci/tasks/write-cats-config/task.yml
+          params:
+            CI_CF_USERNAME: {{ci-cf-username}}
+            CI_CF_PASSWORD: {{ci-cf-bal-password}}
+            APPS_DOMAIN: bal.buildpacks-gcp.ci.cf-app.com
+            DIEGO_DOCKER_ON: true
+        - task: add-flake-attempts-to-cats
+          file: buildpacks-ci/tasks/add-flake-attempts-to-cats/task.yml
+        - task: cats
+          attempts: 3
+          file: cats-concourse-task/task.yml
+          params:
+            NODES: 12
+            CONFIG_FILE_PATH: integration_config.json
+        on_failure:
+          put: failure-alert
+          params:
+            text: "$BUILD_PIPELINE_NAME $BUILD_JOB_NAME job on Concourse failed! \n Check: $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME"
+            channel: {{concourse-job-failure-notifications-slack-channel}}
+            username: concourse
+            icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
 
   # - name: set-github-status
   #   serial: true
