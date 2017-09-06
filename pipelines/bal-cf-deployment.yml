@@ -94,13 +94,6 @@ resources:
     source:
       url: {{concourse-job-failure-notifications-slack-webhook}}
 
-  # - name: deployments-buildpacks
-  #   type: git
-  #   source:
-  #     uri: {{deployments-git-uri}}
-  #     private_key: {{deployments-private-key}}
-  #     branch: master
-
 jobs:
   - name: unit-specs-linux
     plan:
@@ -245,3 +238,22 @@ jobs:
         params:
           repository: updated-diego-release
           rebase: true
+
+  - name: destroy-cf-deployment
+    serial: true
+    public: true
+    plan:
+      - aggregate:
+        - get: buildpacks-ci
+        - get: bal-develop
+          passed: [cats]
+          trigger: true
+      - task: destroy-cf-deployment
+        file: buildpacks-ci/tasks/destroy-cf-deployment/task.yml
+        params:
+          BOSH_CLIENT: {{bal-bosh-client}}
+          BOSH_ENVIRONMENT: {{bal-bosh-target}}
+          BOSH_CLIENT_SECRET: {{bal-bosh-client-secret}}
+          BOSH_CA_CERT: {{bal-bosh-ca-cert}}
+          DEPLOYMENT_NAME: cf
+        attempts: 5
