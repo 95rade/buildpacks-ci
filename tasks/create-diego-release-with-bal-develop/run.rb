@@ -8,12 +8,12 @@ version = "0.#{Time.now.to_i}"
 bal_develop_sha = nil
 
 Dir.chdir 'bal-develop' do
-  bal_develop_sha = `git rev-parse HEAD`
+  bal_develop_sha = `git rev-parse HEAD`.chomp
 end
 
 Dir.chdir 'diego-release' do
   Dir.chdir 'src/code.cloudfoundry.org/buildpackapplifecycle' do
-    system(%(git fetch && git checkout "#{bal_develop_sha}"))
+    system(%(git fetch && git checkout "#{bal_develop_sha}")) || raise('could not update buildpackapplifecycle in diego-release')
   end
   system(%(bosh --parallel 10 sync blobs && bosh create release --force --with-tarball --name diego --version #{version})) || raise('cannot create diego-release')
 end
