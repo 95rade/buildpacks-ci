@@ -22,6 +22,12 @@ push-location $buildDir
     go build
   pop-location
 
+  push-location ../../github.com/cloudfoundry-incubator/credhub-cli
+    git add remote idoru https://github.com/idoru/credhub-cli
+    git fetch idoru
+    git checkout idoru/interpolate-api
+  pop-location
+
   $(& ginkgo -r; $ExitCode="$LastExitCode") | concourse-filter
 
 pop-location

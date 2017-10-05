@@ -18,4 +18,9 @@ cd "$CF_DIR/buildpackapplifecycle"
 
 go get -t ./...
 go get github.com/onsi/ginkgo/ginkgo
+pushd ../../github.com/cloudfoundry-incubator/credhub-cli
+  git add remote idoru https://github.com/idoru/credhub-cli
+  git fetch idoru
+  git checkout idoru/interpolate-api
+popd
 ginkgo -r
