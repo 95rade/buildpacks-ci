@@ -14,18 +14,19 @@ cp bal-develop/* $buildDir -recurse
 
 push-location $buildDir
 
+  go get github.com/cloudfoundry-incubator/credhub-cli
+  push-location ../../github.com/cloudfoundry-incubator/credhub-cli
+    git remote add idoru https://github.com/idoru/credhub-cli
+    git fetch idoru
+    git checkout idoru/interpolate-api
+  pop-location
+
   go get -t ./...
   go get github.com/onsi/ginkgo/ginkgo
 
   go get github.com/pivotal-cf-experimental/concourse-filter
   push-location ../../github.com/pivotal-cf-experimental/concourse-filter
     go build
-  pop-location
-
-  push-location ../../github.com/cloudfoundry-incubator/credhub-cli
-    git remote add idoru https://github.com/idoru/credhub-cli
-    git fetch idoru
-    git checkout idoru/interpolate-api
   pop-location
 
   $(& ginkgo -r; $ExitCode="$LastExitCode") | concourse-filter
