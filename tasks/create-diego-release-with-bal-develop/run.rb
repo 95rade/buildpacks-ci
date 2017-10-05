@@ -21,7 +21,7 @@ Dir.chdir 'diego-release' do
   # end
   FileUtils.mkdir_p 'src/github.com/cloudfoundry-incubator'
   Dir.chdir 'src/github.com/cloudfoundry-incubator' do
-    system(%(git clone https://github.com/idoru/credhub-cli && git checkout interpolate-api)) || raise('could not get idoru fork of credhub-cli')
+    system(%(git clone https://github.com/idoru/credhub-cli && cd credhub-cli && git checkout interpolate-api)) || raise('could not get idoru fork of credhub-cli')
   end
 
   system(%(bosh --parallel 10 sync blobs && bosh create release --force --with-tarball --name diego --version #{version})) || raise('cannot create diego-release')
