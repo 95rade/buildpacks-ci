@@ -18,7 +18,7 @@ push-location $buildDir
   push-location ../../github.com/cloudfoundry-incubator/credhub-cli
     git remote add idoru https://github.com/idoru/credhub-cli
     git fetch idoru
-    git checkout idoru/interpolate-api
+    git checkout idoru/mtls-and-interpolate
   pop-location
 
   go get -t ./...

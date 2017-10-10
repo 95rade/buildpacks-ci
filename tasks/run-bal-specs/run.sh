@@ -18,7 +18,7 @@ go get github.com/cloudfoundry-incubator/credhub-cli
 pushd $GOPATH/src/github.com/cloudfoundry-incubator/credhub-cli
   git remote add idoru https://github.com/idoru/credhub-cli
   git fetch idoru
-  git checkout idoru/interpolate-api
+  git checkout idoru/mtls-and-interpolate
 popd
 
 cd "$CF_DIR/buildpackapplifecycle"
