@@ -12,6 +12,7 @@ md -Force $buildDir
 echo "Moving buildpackapplifecycle onto the gopath..."
 cp bal-develop/* $buildDir -recurse
 
+go version
 push-location $buildDir
 
   go get github.com/cloudfoundry-incubator/credhub-cli
