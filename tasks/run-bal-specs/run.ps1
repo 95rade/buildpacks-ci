@@ -22,7 +22,7 @@ push-location $buildDir
     go build
   pop-location
 
-  $(& ginkgo -r; $ExitCode="$LastExitCode") | concourse-filter
+  $(& ginkgo -tags windows2012R2 -r; $ExitCode="$LastExitCode") | concourse-filter
 
 pop-location
 
