@@ -1,6 +1,6 @@
 ﻿$ErrorActionPreference = "Stop";
 $env:GOPATH="C:/go-" + (-join ((48..57) + (97..122) | Get-Random -Count 6 | % {[char]$_}))
-trap { $host.SetShouldExit(1); rm -Force $env:GOPATH }
+trap { $host.SetShouldExit(1) }
 
 $env:CREDENTIAL_FILTER_WHITELIST="SystemDrive,SERVICE_ID,NUMBER_OF_PROCESSORS,PROCESSOR_LEVEL,WINSW_SERVICE_ID,__PIPE_SERVICE_NAME"
 
@@ -12,7 +12,6 @@ md -Force $buildDir
 echo "Moving buildpackapplifecycle onto the gopath..."
 cp bal-develop/* $buildDir -recurse
 
-go version
 push-location $buildDir
 
   go get -t ./...
