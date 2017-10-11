@@ -14,13 +14,6 @@ mkdir -p "$CF_DIR"/buildpackapplifecycle
 echo "Moving buildpackapplifecycle onto the gopath..."
 cp -R bal-develop/* "$CF_DIR"/buildpackapplifecycle
 
-go get github.com/cloudfoundry-incubator/credhub-cli
-pushd $GOPATH/src/github.com/cloudfoundry-incubator/credhub-cli
-  git remote add idoru https://github.com/idoru/credhub-cli
-  git fetch idoru
-  git checkout idoru/mtls-and-interpolate
-popd
-
 cd "$CF_DIR/buildpackapplifecycle"
 
 go get -t ./...

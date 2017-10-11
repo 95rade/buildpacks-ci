@@ -15,13 +15,6 @@ cp bal-develop/* $buildDir -recurse
 go version
 push-location $buildDir
 
-  go get github.com/cloudfoundry-incubator/credhub-cli
-  push-location ../../github.com/cloudfoundry-incubator/credhub-cli
-    git remote add idoru https://github.com/idoru/credhub-cli
-    git fetch idoru
-    git checkout idoru/mtls-and-interpolate
-  pop-location
-
   go get -t ./...
   go get github.com/onsi/ginkgo/ginkgo
 
