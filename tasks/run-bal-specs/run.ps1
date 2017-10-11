@@ -26,5 +26,5 @@ push-location $buildDir
 
 pop-location
 
-rm -Force $env:GOPATH
+# rm -Force $env:GOPATH
 Exit $ExitCode
