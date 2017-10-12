@@ -23,7 +23,12 @@ push-location $buildDir
   pop-location
 
   $env:TAR_URL="https://s3.amazonaws.com/bosh-windows-dependencies/tar-1503683828.exe"
-  $(& ginkgo -tags windows2012R2 -r; $ExitCode="$LastExitCode") | concourse-filter
+  $(& ginkgo r; $ExitCode="$LastExitCode") | concourse-filter
+
+  if ($ExitCode) {
+    echo "Running tests for windows2012R2 tag..."
+    $(& ginkgo -tags windows2012R2 -r; $ExitCode="$LastExitCode") | concourse-filter
+  }
 
 pop-location
 
