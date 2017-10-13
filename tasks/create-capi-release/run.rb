@@ -7,7 +7,7 @@ require 'yaml'
 version = "0.#{Time.now.to_i}"
 
 Dir.chdir 'capi-release' do
-  system(%(bosh --parallel 10 sync blobs && bosh create release --force --with-tarball --name capi --version #{version})) || raise('cannot create capi-release')
+  system(%(bosh2 sync-blobs --parallel=10 && bosh2 create-release --force --tarball=dev_releases/capi/capi-#{version}.tgz --name=capi --version=#{version})) || raise('cannot create capi-release')
 end
 
 system('rsync -a capi-release/ capi-release-artifacts') || raise('cannot rsync directories')
