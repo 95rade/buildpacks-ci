@@ -16,13 +16,9 @@ Dir.chdir 'diego-release' do
     system(%(git fetch && git checkout "#{bal_develop_sha}")) || raise('could not update buildpackapplifecycle in diego-release')
   end
 
-  # Dir.chdir 'src/github.com/cloudfoundry-incubator/credhub-cli' do
-  #   system(%(git remote add idoru https://github.com/idoru/credhub-cli && git fetch && git checkout idoru/interpolate-api)) || raise('could not get idoru fork of credhub-cli')
-  # end
-  # FileUtils.mkdir_p 'src/github.com/cloudfoundry-incubator'
-  # Dir.chdir 'src/github.com/cloudfoundry-incubator' do
-  #   system(%(git clone https://github.com/idoru/credhub-cli && cd credhub-cli && git checkout mtls-and-interpolate)) || raise('could not get idoru fork of credhub-cli')
-  # end
+  spec = YAML.load_file('packages/buildpack_app_lifecycle/spec')
+  spec['files'] << 'code.cloudfoundry.org/buildpackapplifecycle/*/*.go'
+  File.write('packages/buildpack_app_lifecycle/spec', spec.to_yaml)
 
   system(%(bosh --parallel 10 sync blobs && bosh create release --force --with-tarball --name diego --version #{version})) || raise('cannot create diego-release')
 end
