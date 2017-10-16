@@ -6,6 +6,7 @@ require 'yaml'
 
 version = "0.#{Time.now.to_i}"
 
+bal_develop_sha = nil
 Dir.chdir 'bal-develop' do
   bal_develop_sha = `git rev-parse HEAD`.chomp
 end
