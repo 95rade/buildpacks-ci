@@ -21,6 +21,7 @@ cats_config = {
   "include_backend_compatibility" => true,
   "include_detect" => true,
   "include_docker" => false,
+  "include_credhub" => true,
   "include_internet_dependent" => true,
   "include_persistent_app" => false,
   "include_route_services" => false,
