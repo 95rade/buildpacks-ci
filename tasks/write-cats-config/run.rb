@@ -12,6 +12,7 @@ cats_config = {
   "admin_user" => admin_user,
   "api" => "api.#{apps_domain}",
   "apps_domain" => apps_domain,
+  "credhub_mode" => "assisted",
   "async_service_operation_timeout" => 1200,
   "backend" => "diego",
   "cf_push_timeout" => 600,
