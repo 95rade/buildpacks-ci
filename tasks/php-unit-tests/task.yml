@@ -5,7 +5,7 @@ image_resource:
   source:
     repository: cfbuildpacks/ci
 inputs:
-  - name: buildpacks
+  - name: buildpack
 run:
   dir: buildpacks
   path: bash
