@@ -55,11 +55,38 @@ resources:
       branch: develop
       private_key: {{diego-release-private-key}}
 
+  - name: cf-deployment-concourse-tasks
+    type: git
+    source:
+      branch: master
+      uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
+      tag_filter: v4.*
+
+  - name: bosh-deployment
+    type: git
+    source:
+      uri: https://github.com/cloudfoundry/bosh-deployment.git
+
+  - name: capi-release #until assist mode in cf-deployment
+    type: git
+    source:
+      uri: https://github.com/cloudfoundry/capi-release
+      branch: develop
+
+  - name: bbl-state
+    type: git
+    source:
+      uri: git@github.com:cloudfoundry/buildpacks-envs
+      branch: master
+      private_key: {{buildpacks-envs-private-key}}
+
   - name: cf-acceptance-tests
     type: git
     source:
-      uri: https://github.com/cloudfoundry/cf-acceptance-tests
-      branch: master
+      uri: https://github.com/idoru/cf-acceptance-tests
+      branch: secure-si-creds
+      # uri: https://github.com/cloudfoundry/cf-acceptance-tests
+      # branch: master
 
   - name: bal-cf-deployment
     type: bosh-deployment
@@ -80,6 +107,16 @@ resources:
     type: bosh-io-stemcell
     source:
       name: bosh-google-kvm-ubuntu-trusty-go_agent
+
+  # - name: windows2012-stemcell
+  #   type: bosh-io-stemcell
+  #   source:
+  #     name: bosh-google-kvm-windows2012R2-go_agent
+
+  # - name: windows2016-stemcell
+  #   type: bosh-io-stemcell
+  #   source:
+  #     name: bosh-google-kvm-ubuntu-trusty-go_agent
 
   - name: failure-alert
     type: slack-notification
@@ -104,6 +141,33 @@ jobs:
       - task: run-specs
         file: buildpacks-ci/tasks/run-bal-specs/task-windows.yml
 
+  - name: bbl-up
+    plan:
+      - aggregate:
+        - get: cf-deployment-concourse-tasks
+        - get: bbl-state
+        - get: bosh-deployment
+      - task: bbl-up
+        file: cf-deployment-concourse-tasks/bbl-up/task.yml
+        params:
+          BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp-service-account-key}}
+          BBL_GCP_PROJECT_ID: cf-buildpacks
+          BBL_GCP_ZONE: us-east1-c
+          BBL_GCP_REGION: us-east1
+          BBL_IAAS: gcp
+          BBL_LB_CERT: {{bal-lb-cert}}
+          BBL_LB_KEY: {{bal-lb-key}}
+          LB_DOMAIN: bal.buildpacks-gcp.ci.cf-app.com
+          BBL_ENV_NAME: bal
+          OPS_FILES: "local-dns.yml"
+        input_mapping:
+          ops-files: bosh-deployment
+        ensure:
+          put: bbl-state
+          params:
+            repository: updated-bbl-state
+            rebase: true
+
   - name: deploy-cf-and-diego-to-cf-release
     serial: true
     public: true
@@ -115,29 +179,44 @@ jobs:
             passed: [unit-specs-windows, unit-specs-linux]
             trigger: true
           - get: diego-release
+          - get: capi-release    #FIXME: remove after capi assist mode is in cf-deployment
           - get: cf-deployment
           - get: gcp-stemcell
             attempts: 3
-        - task: create-diego-release-with-bal-develop
-          file: buildpacks-ci/tasks/create-diego-release-with-bal-develop/task.yml
+        - aggregate:
+          - task: create-diego-release-with-bal-develop
+            file: buildpacks-ci/tasks/create-diego-release-with-bal-develop/task.yml
+          - task: create-capi-develop-release # FIXME: remove (including task files) after capi assist mode is in cf-deployment
+            file: buildpacks-ci/tasks/create-capi-release/task.yml
         - put: bal-cf-deployment
           params:
             manifest: cf-deployment/cf-deployment.yml
-            releases: [diego-release-artifacts/dev_releases/diego/*.tgz]
+            releases:
+              - diego-release-artifacts/dev_releases/diego/*.tgz
+              - capi-release-artifacts/dev_releases/capi/*.tgz
             stemcells:
               - gcp-stemcell/*.tgz
               # - windows2012-stemcell/*.tgz
               # - windows2016-stemcell/*.tgz
             ops_files:
             - diego-release-artifacts/use-diego-dev-release.yml
+            - capi-release-artifacts/use-capi-dev-release.yml #FIXME: remove after capi assist mode is in cf-deployment
             - buildpacks-ci/deployments/operations/no-canaries.yml
             - cf-deployment/operations/scale-to-one-az.yml
             # - cf-deployment/operations/windows-cell.yml
             # - cf-deployment/operations/experimental/windows2016-cell.yml
             - cf-deployment/operations/experimental/enable-instance-identity-credentials.yml
             - cf-deployment/operations/experimental/secure-service-credentials.yml
+            - buildpacks-ci/deployments/operations/no-credhub-lb.yml
+            # - cf-deployment/operations/experimental/use-bosh-dns.yml
+            - cf-deployment/operations/experimental/use-bosh-dns-for-containers.yml
             vars:
               system_domain: bal.buildpacks-gcp.ci.cf-app.com
+          - task: set-up-environment-for-credhub
+            params:
+              CI_CF_USERNAME: {{ci-cf-username}}
+              CI_CF_PASSWORD: {{ci-cf-bal-password}}
+              APPS_DOMAIN: bal.buildpacks-gcp.ci.cf-app.com
         on_failure:
           put: failure-alert
           params:
@@ -168,8 +247,25 @@ jobs:
             DIEGO_DOCKER_ON: true
         - task: add-flake-attempts-to-cats
           file: buildpacks-ci/tasks/add-flake-attempts-to-cats/task.yml
+          #### TODO: set CREDHUB_API in running environment variable group, ala:
+          ### cf set-running-environment-variable-group '{"^CEDHUB_API": "https://credhub.service.cf.internal:8844/"}'
+          #### TODO: set ASGs to allow traffic to CREDHUB IPs on 8844, ala:
+          #[
+          #{
+          #       "protocol": "tcp",
+          #       "destination": "10.0.32.4",
+          #       "ports": "8844",
+          #       "description": "Allow credhub traffic"
+          #     },
+          #     {
+          #       "protocol": "tcp",
+          #       "destination": "10.0.16.18",
+          #       "ports": "8844",
+          #       "description": "Allow credhub traffic"
+          #     }
+          #   ]
         - task: cats
-          attempts: 3
+          # attempts: 3
           file: cats-concourse-task/task.yml
           params:
             NODES: 12
