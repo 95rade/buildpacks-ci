@@ -9,6 +9,7 @@ image_resource:
 inputs:
 - name: wats
 - name: integration-config
+- name: buildpacks-ci
 outputs:
 - name: wats-trace-output
 
