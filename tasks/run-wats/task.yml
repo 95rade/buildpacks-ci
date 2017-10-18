@@ -13,10 +13,7 @@ outputs:
 - name: wats-trace-output
 
 run:
-  path: bash
-  args:
-    - "-cl"
-    - "buildpacks-ci/tasks/run-wats/run.sh"
+  path: buildpacks-ci/tasks/run-wats/run.sh
 
 params:
   NODES: 12
