@@ -14,6 +14,7 @@ rsync -a diego-release/ updated-diego-release
 
 pushd updated-diego-release
   pushd src/code.cloudfoundry.org/buildpackapplifecycle
+    git fetch
     git checkout "$BAL_DEV_SHA"
   popd
 
