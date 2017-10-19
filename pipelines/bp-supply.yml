@@ -22,8 +22,6 @@ resources:
   #     url: {{concourse-job-failure-notifications-slack-webhook}}
 jobs:
   - name: unit-tests
-    serial: true
-    public: true
     plan:
       - aggregate:
         - get: buildpacks-ci
@@ -31,6 +29,14 @@ jobs:
           trigger: true
       - task: unit-tests
         file: buildpacks-ci/tasks/bp-supply/task-unit-tests.yml
+  - name: integration-tests
+    plan:
+      - aggregate:
+        - get: buildpacks-ci
+        - get: bp-supply
+          trigger: true
+      - task: integration-tests
+        file: buildpacks-ci/tasks/bp-supply/task-integration-tests.yml
       # on_failure:
       #   put: failure-alert
       #   params:
