@@ -7,6 +7,7 @@ image_resource:
 inputs:
   - name: buildpacks-ci
   - name: bp-supply
+  - name: cf-space
 params:
   GOPATH: /go
   GOBIN: /go/bin
@@ -16,6 +17,9 @@ run:
     - -cl
     - |
       set -ex
+
+      ./cf-space/login
+
       mkdir -p /go/src/github.com/cloudfoundry/
       cp -r bp-supply /go/src/github.com/cloudfoundry/
       cd /go/src/github.com/cloudfoundry/bp-supply
@@ -23,5 +27,3 @@ run:
 
       cd integration
       /go/bin/ginkgo
-
-
