@@ -19,7 +19,7 @@ export CF_DIAL_TIMEOUT=11
 
 export CF_PLUGIN_HOME=$HOME
 
-./scripts/run_wats.sh $CONFIG \
+./scripts/run_wats.sh ../integration-config/${CONFIG_FILE_PATH} \
 -keepGoing \
 -randomizeAllSpecs \
 -slowSpecThreshold=120 \
