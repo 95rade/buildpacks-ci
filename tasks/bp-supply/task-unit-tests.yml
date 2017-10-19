@@ -1,0 +1,22 @@
+---
+platform: linux
+image_resource:
+  type: docker-image
+  source:
+    repository: cloudfoundry/cflinuxfs2
+inputs:
+  - name: buildpacks-ci
+  - name: bp-supply
+run:
+  path: bash
+  args:
+    - -cl
+    - |
+      set -ex
+      mkdir -p /go/src/github.com/cloudfoundry/
+      mv bp-supply /go/src/github.com/cloudfoundry/
+      cd /go/src/github.com/cloudfoundry/bp-supply
+
+      ginkgo
+
+

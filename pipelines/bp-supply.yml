@@ -1,0 +1,39 @@
+resource_types:
+  - name: slack-notification
+    type: docker-image
+    source:
+      repository: cfcommunity/slack-notification-resource
+resources:
+  - name: buildpacks-ci
+    type: git
+    source:
+      uri: {{buildpacks-ci-git-uri-public}}
+      branch: bp-supply # {{buildpacks-ci-git-uri-public-develop-branch}}
+      paths: [ "tasks/bp-supply/*"]
+  - name: bp-supply
+    type: git
+    source:
+      uri: git@github.com:cloudfoundry/bp-supply.git
+      branch: develop
+  - name: failure-alert
+    type: slack-notification
+    source:
+      url: {{concourse-job-failure-notifications-slack-webhook}}
+jobs:
+  - name: unit-tests
+    serial: true
+    public: true
+    plan:
+      - aggregate:
+        - get: buildpacks-ci
+        - get: bp-supply
+          trigger: true
+      - task: unit-tests
+        file: buildpacks-ci/tasks/bp-supply/task-unit-tests.yml
+      on_failure:
+        put: failure-alert
+        params:
+          text: "$BUILD_PIPELINE_NAME $BUILD_JOB_NAME job on Concourse failed! \n Check: $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME"
+          channel: {{concourse-job-failure-notifications-slack-channel}}
+          username: concourse
+          icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
