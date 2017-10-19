@@ -19,10 +19,11 @@ export CF_DIAL_TIMEOUT=11
 
 export CF_PLUGIN_HOME=$HOME
 
-./bin/test \
+./scripts/run_wats.sh $CONFIG \
 -keepGoing \
 -randomizeAllSpecs \
 -slowSpecThreshold=120 \
+-focus="CredHub" \
 -nodes="${NODES}" \
 -skip="${SKIP_REGEXP}"
 
