@@ -16,7 +16,12 @@ run:
       mkdir -p /go/src/github.com/cloudfoundry/
       cp -r bp-supply /go/src/github.com/cloudfoundry/
       cd /go/src/github.com/cloudfoundry/bp-supply
-      (cd vendor/github.com/onsi/ginkgo && go install)
+
+      export GOPATH=/go
+      export GOBIN=$GOPATH/bin
+      export PATH=$GOBIN:$PATH
+
+      (cd vendor/github.com/onsi/ginkgo/ginkgo && go install)
 
       ginkgo
 
