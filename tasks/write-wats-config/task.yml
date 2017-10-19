@@ -12,7 +12,7 @@ run:
   path: bash
   args:
     - "-cl"
-    - "buildpacks-ci/tasks/write-cats-config/run.rb"
+    - "buildpacks-ci/tasks/write-wats-config/run.rb"
 params:
   CI_CF_USERNAME:
   CI_CF_PASSWORD:
