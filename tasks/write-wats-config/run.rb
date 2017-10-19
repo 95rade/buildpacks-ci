@@ -13,7 +13,9 @@ wats_config = {
   "admin_password" => admin_password,
   "apps_domain" => apps_domain,
 
-  "secure_address" => "", #wtf
+  "credhub_mode" => "assisted",
+
+  "secure_address" => "10.0.0.6", #wtf
   "num_windows_cells" => 1,#verify
 
   "skip_ssl_validation" => true,
