@@ -8,7 +8,7 @@ resources:
     type: git
     source:
       uri: {{buildpacks-ci-git-uri-public}}
-      branch: bp-supply # {{buildpacks-ci-git-uri-public-develop-branch}}
+      branch: {{buildpacks-ci-git-uri-public-develop-branch}}
       paths: [ "tasks/bp-supply/*", "tasks/delete-cf-space/*" ]
   - name: bp-supply
     type: git
