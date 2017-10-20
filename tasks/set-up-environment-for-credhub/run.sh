@@ -7,7 +7,7 @@ set -o xtrace
 
 CF_API_URL=api."$APPS_DOMAIN"
 
-cf api "$CF_API_URL"
+cf api --skip-ssl-validation "$CF_API_URL"
 cf auth "$CI_CF_USERNAME" "$CI_CF_PASSWORD"
 
 cf set-running-environment-variable-group '{"CREDHUB_API": "https://credhub.service.cf.internal:8844/"}'
