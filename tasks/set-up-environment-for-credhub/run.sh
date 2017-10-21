@@ -15,7 +15,7 @@ cf set-running-environment-variable-group '{"CREDHUB_API": "https://credhub.serv
 cd bbl-state
 eval "$(bbl print-env)"
 
-bosh2 instances -d cf --json | jq '.Tables[0].Rows | map(select(.instance | match("^credhub\/") )) | map({"protocol":"tcp", "ports":"8844", "description": "Allow credhub traffic", "destination": .ips})' > security_group.json
+bosh2 instances -d cf --json | jq '.Tables[0].Rows | map(select(.instance | startswith("credhub\/") )) | map({"protocol":"tcp", "ports":"8844", "description": "Allow credhub traffic", "destination": .ips})' > security_group.json
 
 cf create-security-group credhub security_group.json
 cf bind-running-security-group credhub
