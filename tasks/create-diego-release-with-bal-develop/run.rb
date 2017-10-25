@@ -16,7 +16,7 @@ Dir.chdir 'diego-release' do
     system(%(git fetch && git checkout "#{bal_develop_sha}")) || raise('could not update buildpackapplifecycle in diego-release')
   end
 
-  system(%(./scripts/sync-package-specs && bosh --parallel 10 sync blobs && bosh create release --force --with-tarball --name diego --version #{version})) || raise('cannot create diego-release')
+  system(%(git status && ./scripts/sync-package-specs && bosh --parallel 10 sync blobs && bosh create release --force --with-tarball --name diego --version #{version})) || raise('cannot create diego-release')
 end
 
 system('rsync -a diego-release/ diego-release-artifacts') || raise('cannot rsync directories')
