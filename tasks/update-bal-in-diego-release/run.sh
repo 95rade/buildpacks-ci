@@ -18,6 +18,10 @@ pushd updated-diego-release
     git checkout "$BAL_DEV_SHA"
   popd
 
+  export GOPATH=$PWD
+  export PATH=$GOPATH/bin:$PATH
+  ./scripts/sync-package-specs
+
   if [ -n "$(git status --porcelain)" ] ; then
     git add .
     git config --global alias.ci commit
