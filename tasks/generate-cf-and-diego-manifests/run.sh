@@ -60,10 +60,6 @@ pushd cf-release
   echo "
 ---
 name: cf-warden
-stemcells:
-  - alias: default
-    os: ubuntu-trusty
-    version: latest
 properties:
   domain: $DEPLOYMENT_NAME.$BOSH_LITE_DOMAIN_NAME
   system_domain: $DEPLOYMENT_NAME.$BOSH_LITE_DOMAIN_NAME
