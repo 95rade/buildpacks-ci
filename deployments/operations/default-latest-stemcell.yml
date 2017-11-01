@@ -2,5 +2,4 @@
   path: /stemcells?
   value:
     - alias: default
-      os: ubuntu-trusty
       version: latest
