@@ -60,7 +60,7 @@ pushd cf-release
   echo "
 ---
 name: cf-warden
-stemcell:
+stemcells:
   - alias: default
     os: ubuntu-trusty
     version: latest
