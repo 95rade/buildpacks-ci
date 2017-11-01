@@ -1,5 +1,0 @@
-- type: replace
-  path: /stemcells?
-  value:
-    - alias: default
-      version: latest
