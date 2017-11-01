@@ -25,7 +25,7 @@ resources:
     type: git
     source:
       uri: {{buildpacks-ci-git-uri-public}}
-      branch: {{buildpacks-ci-git-uri-public-branch}}
+      branch: cf-release-cf-bosh-deployment #{{buildpacks-ci-git-uri-public-branch}}
   - name: public-robots
     type: git
     source:
@@ -341,8 +341,10 @@ jobs:
         - put: cf-release-cf-deployment
           params:
             manifest: generate-manifest-artifacts/cf-release.buildpacks-gcp.ci/manifest.yml
-            stemcells: [lite-stemcell/*.tgz]
+            # stemcells: [lite-stemcell/*.tgz]
             releases: [cf-release-artifacts/dev_releases/cf/*.tgz]
+            # ops_files:
+            #   - buildpacks-ci/deployments/operations/default-latest-stemcell.yml
         - task: upload-diego-release
           file: buildpacks-ci/tasks/upload-diego-release/task.yml
           params:
