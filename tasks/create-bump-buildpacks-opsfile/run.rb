@@ -11,11 +11,11 @@ Dir.glob("*-buildpack-github-release").each do |github_release|
   release_name = github_release.gsub("-github-release", "")
 
   release_replacement = {
-    "path": "/releases/name=#{release_name}",
-    "type": "replace",
-    "value": {
-      "name": release_name,
-      "version": version
+    "path" => "/releases/name=#{release_name}",
+    "type" => "replace",
+    "value" => {
+      "name" => release_name,
+      "version" => version
     }
   }
   Dir.chdir("#{release_name}-bosh-release") do
@@ -27,13 +27,13 @@ Dir.glob("*-buildpack-github-release").each do |github_release|
 end
 
 replacements << {
-    "path": "/releases/name=cflinuxfs2",
-    "type": "replace",
-    "value": {
-      "name": "cflinuxfs2",
-      "version": File.read("cflinuxfs2-bosh-release/version").strip,
-      "sha1": File.read("cflinuxfs2-bosh-release/sha1").strip,
-      "url": File.read("cflinuxfs2-bosh-release/url").strip
+    "path" => "/releases/name=cflinuxfs2",
+    "type" => "replace",
+    "value" => {
+      "name" => "cflinuxfs2",
+      "version" => File.read("cflinuxfs2-bosh-release/version").strip,
+      "sha1" => File.read("cflinuxfs2-bosh-release/sha1").strip,
+      "url" => File.read("cflinuxfs2-bosh-release/url").strip
     }
 }
 
