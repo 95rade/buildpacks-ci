@@ -10,6 +10,7 @@ inputs:
   - name: bal-develop
 outputs:
   - name: diego-release-artifacts
+  - name: built-builtpacks-artifacts
 run:
   path: bash
   args:
