@@ -12,8 +12,8 @@ Dir.glob("*-buildpack-github-release").each do |bosh_release|
   puts "Building release: #{release_name}"
 
   release_replacement = {
-    path: "/releases/name=#{release_name}"
-    type: "replace"
+    path: "/releases/name=#{release_name}",
+    type: "replace",
     value: {
       name: release_name,
       version: version
@@ -30,8 +30,8 @@ Dir.glob("*-buildpack-github-release").each do |bosh_release|
 end
 
 replacements << {
-    path: "/releases/name=cflinuxfs2"
-    type: "replace"
+    path: "/releases/name=cflinuxfs2",
+    type: "replace",
     value: {
       name: cflinuxfs2,
       version: File.read("cflinuxfs2-bosh-release/version").strip,
