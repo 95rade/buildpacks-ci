@@ -30,7 +30,7 @@ replacements << {
     path: "/releases/name=cflinuxfs2",
     type: "replace",
     value: {
-      name: cflinuxfs2,
+      name: "cflinuxfs2",
       version: File.read("cflinuxfs2-bosh-release/version").strip,
       sha1: File.read("cflinuxfs2-bosh-release/sha1").strip,
       url: File.read("cflinuxfs2-bosh-release/url").strip
