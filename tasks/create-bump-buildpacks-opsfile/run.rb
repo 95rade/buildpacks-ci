@@ -9,8 +9,9 @@ version = "0.#{Time.now.to_i}"
 replacements = []
 Dir.glob("*-buildpack-github-release").each do |bosh_release|
   release_name = bosh_release.gsub("-github-release", "")
+  puts "Building release: #{release_name}"
 
-  replacements << {
+  release_replacement = {
     path: "/releases/name=#{release_name}"
     type: "replace"
     value: {
@@ -23,6 +24,9 @@ Dir.glob("*-buildpack-github-release").each do |bosh_release|
     system(%(bosh --parallel 10 sync blobs && bosh create release --force --with-tarball --name #{release_name} --version #{version})) || raise("cannot create #{release_name} release")
     system(%(cp dev_releases/*/*.tgz ../built-buildpacks-artifacts/))
   end
+
+  puts "Adding latest release to opsfile: #{release_replacement}"
+  replacements << release_replacement
 end
 
 replacements << {
