@@ -1,0 +1,22 @@
+---
+platform: linux
+image_resource:
+  type: docker-image
+  source:
+    repository: cfbuildpacks/ci
+inputs:
+  - name: java-buildpack-bosh-io-release
+  - name: go-buildpack-bosh-io-release
+  - name: python-buildpack-bosh-io-release
+  - name: nodejs-buildpack-bosh-io-release
+  - name: ruby-buildpack-bosh-io-release
+  - name: php-buildpack-bosh-io-release
+  - name: staticfile-buildpack-bosh-io-release
+  - name: binary-buildpack-bosh-io-release
+  - name: dotnet-core-buildpack-bosh-io-release
+  - name: cflinuxfs2-bosh-release
+outputs:
+  - name: bump-buildpacks-opsfile
+params:
+run:
+  path: buildpacks-ci/tasks/create-bump-buildpacks-opsfile/run.rb
