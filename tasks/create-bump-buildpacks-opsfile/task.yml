@@ -5,18 +5,19 @@ image_resource:
   source:
     repository: cfbuildpacks/ci
 inputs:
-  - name: java-buildpack-bosh-io-release
-  - name: go-buildpack-bosh-io-release
-  - name: python-buildpack-bosh-io-release
-  - name: nodejs-buildpack-bosh-io-release
-  - name: ruby-buildpack-bosh-io-release
-  - name: php-buildpack-bosh-io-release
-  - name: staticfile-buildpack-bosh-io-release
-  - name: binary-buildpack-bosh-io-release
-  - name: dotnet-core-buildpack-bosh-io-release
+  - name: java-buildpack-github-release
+  - name: go-buildpack-github-release
+  - name: python-buildpack-github-release
+  - name: nodejs-buildpack-github-release
+  - name: ruby-buildpack-github-release
+  - name: php-buildpack-github-release
+  - name: staticfile-buildpack-github-release
+  - name: binary-buildpack-github-release
+  - name: dotnet-core-buildpack-github-release
   - name: cflinuxfs2-bosh-release
 outputs:
   - name: bump-buildpacks-opsfile
+  - name: built-buildpacks-artifacts
 params:
 run:
   path: buildpacks-ci/tasks/create-bump-buildpacks-opsfile/run.rb
