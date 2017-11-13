@@ -2,11 +2,11 @@
 - type: replace
   path: /instance_groups/name=uaa/jobs/properties/authentication
   value:
-		policy:
-			countFailuresWithinSeconds: 1
-			global:
-				countFailuresWithinSeconds: 1
-				lockoutAfterFailures: 100
-				lockoutPeriodSeconds: 1
-			lockoutAfterFailures: 100
-			lockoutPeriodSeconds: 1
+    policy:
+      countFailuresWithinSeconds: 1
+      global:
+	countFailuresWithinSeconds: 1
+	lockoutAfterFailures: 100
+	lockoutPeriodSeconds: 1
+      lockoutAfterFailures: 100
+      lockoutPeriodSeconds: 1
