@@ -1,6 +1,6 @@
 ---
 - type: replace
-  path: /instance_groups/name=uaa/jobs/name=uaa/properties/authentication
+  path: /instance_groups/name=uaa/jobs/name=uaa/properties/authentication-
   value:
     policy:
       countFailuresWithinSeconds: 1
