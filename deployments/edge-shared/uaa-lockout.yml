@@ -5,8 +5,8 @@
     policy:
       countFailuresWithinSeconds: 1
       global:
-	countFailuresWithinSeconds: 1
-	lockoutAfterFailures: 100
-	lockoutPeriodSeconds: 1
+        countFailuresWithinSeconds: 1
+        lockoutAfterFailures: 100
+        lockoutPeriodSeconds: 1
       lockoutAfterFailures: 100
       lockoutPeriodSeconds: 1
