@@ -10,5 +10,5 @@ gcloud auth activate-service-account --key-file /tmp/gcp_key
 
 gcloud config set project cf-buildpacks
 
-gcloud compute firewall-rules delete "${ENV_NAME}"-bosh-lite-cf-ports --quiet
+gcloud compute firewall-rules delete "${ENV_NAME}"-bosh-lite-cf-ports --quiet || echo Couldnt remove firewall rule
 
