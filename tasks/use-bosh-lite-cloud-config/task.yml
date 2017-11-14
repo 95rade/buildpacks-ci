@@ -1,0 +1,15 @@
+---
+platform: linux
+image_resource:
+  type: docker-image
+  source:
+    repository: cfbuildpacks/ci
+inputs:
+  - name: bbl-state
+  - name: cf-deployment
+
+run:
+  path: buildpacks-ci/tasks/use-bosh-lite-cloud-config/run.sh
+
+params:
+  ENV_NAME:
