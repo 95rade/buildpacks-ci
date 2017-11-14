@@ -139,8 +139,13 @@ class ConcourseBinaryBuilder
           end
 
     filename = Dir["#{binary_builder_dir}/#{dependency + ext}"].first
-    short_filename = File.basename(filename)
+    if dependency == 'dotnet'
+      system('gunzip', filename)
+      system('xz', filename.gsub(/\.gz$/, ''))
+      filename = filename.gsub(/\.gz$/, '.xz')
+    end
 
+    short_filename = File.basename(filename)
     md5sum = Digest::MD5.file(filename).hexdigest
     shasum = Digest::SHA256.file(filename).hexdigest
 

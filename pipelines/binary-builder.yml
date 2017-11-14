@@ -337,12 +337,6 @@ jobs: ##########################################################################
             RUBYGEM_MIRROR: {{rubygem-mirror}}
             BINARY_BUILDER_PLATFORM: {{binary-builder-platform}}
             BINARY_BUILDER_OS_NAME: {{binary-builder-os-name}}
-        <% if dependency == 'dotnet' %>
-        - task: convert-gz-to-xz
-          file: buildpacks-ci/tasks/convert-gz-to-xz/task.yml
-          input_mapping: {input: binary-builder-artifacts}
-          output_mapping: {output: binary-builder-artifacts}
-        <% end %>
         - put: buildpacks-bucket-<%= dependency %>
           params:
             file: binary-builder-artifacts/<%= dependency %>*
