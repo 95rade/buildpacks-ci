@@ -117,7 +117,7 @@ class ConcourseBinaryBuilder
   def convert_gz_to_xz
     return unless dependency == 'dotnet'
 
-    filename = Dir["#{binary_builder_dir}/#{dependency}.tar.gz"].first
+    filename = Dir["#{binary_builder_dir}/#{dependency}*.tar.gz"].first
     system('gunzip', filename) or raise "Could not gunzip #{filename}"
     filename.gsub!(/\.gz$/, '')
     system('xz', filename) or raise "Could not xz #{filename}"
