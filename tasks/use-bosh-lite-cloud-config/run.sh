@@ -10,5 +10,5 @@ pushd bbl-state/"${ENV_NAME}"
   bosh2 env
 popd
 
-bosh2 update-cloud-config cf-deployment/iaas-support/bosh-lite/cloud-config.yml
+bosh2 update-cloud-config -n cf-deployment/iaas-support/bosh-lite/cloud-config.yml
 
