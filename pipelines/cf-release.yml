@@ -389,35 +389,6 @@ jobs:
           BBL_GCP_PROJECT_ID: cf-buildpacks
           BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp-service-account-key}}
 
-  # - name: destroy-bosh-lite
-  #   serial: true
-  #   serial_groups: [ cf-release ]
-  #   public: true
-  #   plan:
-  #     - aggregate:
-  #       - get: public-robots
-  #         passed: [ cats ]
-  #         trigger: true
-  #       - get: buildpacks-ci
-  #     - task: destroy-cf-release-bosh-lite
-  #       file: buildpacks-ci/tasks/destroy-bosh-lite/task.yml
-  #       params:
-  #         DEPLOYMENT_NAME: cf-release.buildpacks-gcp.ci
-  #         BOSH_USER: {{gcp_bosh_admin_user}}
-  #         BOSH_PASSWORD: {{gcp_bosh_admin_password}}
-  #         GCP_BOSH_LITE_NAME: cf-release-gcp-bosh-lite
-  #         GCP_BOSH_DIRECTOR_USER: {{gcp_bosh_admin_user}}
-  #         GCP_BOSH_DIRECTOR_PASSWORD: {{gcp_bosh_admin_password}}
-  #         BOSH_LITE_NAME: cf-release.buildpacks-gcp.ci
-  #         RUBYGEM_MIRROR: {{rubygem-mirror}}
-  #         BOSH_LITE_DOMAIN_NAME: {{bosh-lite-domain-name}}
-  #         IAAS: gcp
-  #         ######## For AWS Deploys ##################
-  #         #BOSH_PRIVATE_KEY: {{bosh_private_key}}
-  #         #AWS_ACCESS_KEY_ID: {{buildpacks_ci_aws_access_key_id}}
-  #         #AWS_SECRET_ACCESS_KEY: {{buildpacks_ci_aws_secret_access_key}}
-  #       attempts: 5
-
   - name: ship-it
     serial: true
     public: true
