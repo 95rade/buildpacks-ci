@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 
-echo $GCP_SERVICE_ACCOUNT_KEY > /tmp/gcp_key
+echo "$GCP_SERVICE_ACCOUNT_KEY" > /tmp/gcp_key
 
 set -o errexit
 set -o nounset
 set -o pipefail
 set -o xtrace
 
+ENV_NAME=${ENV_NAME:-}
 ZONE_NAME="${ENV_NAME}"-zone
 DNS_NAME="${ENV_NAME}.buildpacks-gcp.ci.cf-app.com."
 BOSH_LITE_IP=$(cd bbl-state && bbl bosh-deployment-vars | grep external_ip | awk '{print $2}')
@@ -34,6 +35,7 @@ NAMESERVERS=$(gcloud dns managed-zones describe "${ZONE_NAME}" --format='value[d
 "](nameServers)')
 
 # add the parent zone (buildpacks zone) subdomain NS records
-gcloud dns record-sets transaction add "${NAMESERVERS}" --name "${DNS_NAME}" --ttl=300 --type=NS --zone=buildpacks
+# shellcheck disable=SC2086
+gcloud dns record-sets transaction add ${NAMESERVERS} --name "${DNS_NAME}" --ttl=300 --type=NS --zone=buildpacks
 
 gcloud dns record-sets transaction execute --zone="${ZONE_NAME}"
