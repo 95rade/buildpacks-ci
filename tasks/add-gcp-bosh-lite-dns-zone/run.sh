@@ -19,23 +19,28 @@ gcloud config set project cf-buildpacks
 #1. create zone
 gcloud dns managed-zones create "${ZONE_NAME}" --description="${ENV_NAME} Zone" --dns-name="${DNS_NAME}"
 
-gcloud dns record-sets transaction start --zone="${ZONE_NAME}"
 
 #2. add individual items:
-gcloud dns record-sets transaction add "${BOSH_LITE_IP}" --name='*.'"${DNS_NAME}" --ttl=300 --type=A --zone="${ZONE_NAME}"
-gcloud dns record-sets transaction add "${BOSH_LITE_IP}" --name='bosh.'"${DNS_NAME}" --ttl=300 --type=A --zone="${ZONE_NAME}"
-gcloud dns record-sets transaction add "${BOSH_LITE_IP}" --name='doppler.'"${DNS_NAME}" --ttl=300 --type=A --zone="${ZONE_NAME}"
-gcloud dns record-sets transaction add "${BOSH_LITE_IP}" --name='loggregator.'"${DNS_NAME}" --ttl=300 --type=A --zone="${ZONE_NAME}"
-gcloud dns record-sets transaction add "${BOSH_LITE_IP}" --name='ssh.'"${DNS_NAME}" --ttl=300 --type=A --zone="${ZONE_NAME}"
-gcloud dns record-sets transaction add "${BOSH_LITE_IP}" --name='tcp.'"${DNS_NAME}" --ttl=300 --type=A --zone="${ZONE_NAME}"
-gcloud dns record-sets transaction add "${BOSH_LITE_IP}" --name='*.ws.'"${DNS_NAME}" --ttl=300 --type=A --zone="${ZONE_NAME}"
+gcloud dns record-sets transaction start --zone="${ZONE_NAME}"
 
-# get the NS
-# NAMESERVERS=$(gcloud dns managed-zones describe "${ZONE_NAME}" --format='value[delimiter="
-# "](nameServers)')
-
-# add the parent zone (buildpacks zone) subdomain NS records
-# shellcheck disable=SC2086
-# gcloud dns record-sets transaction add ${NAMESERVERS} --name "${DNS_NAME}" --ttl=300 --type=NS --zone=buildpacks
+  gcloud dns record-sets transaction add "${BOSH_LITE_IP}" --name='*.'"${DNS_NAME}" --ttl=300 --type=A --zone="${ZONE_NAME}"
+  gcloud dns record-sets transaction add "${BOSH_LITE_IP}" --name='bosh.'"${DNS_NAME}" --ttl=300 --type=A --zone="${ZONE_NAME}"
+  gcloud dns record-sets transaction add "${BOSH_LITE_IP}" --name='doppler.'"${DNS_NAME}" --ttl=300 --type=A --zone="${ZONE_NAME}"
+  gcloud dns record-sets transaction add "${BOSH_LITE_IP}" --name='loggregator.'"${DNS_NAME}" --ttl=300 --type=A --zone="${ZONE_NAME}"
+  gcloud dns record-sets transaction add "${BOSH_LITE_IP}" --name='ssh.'"${DNS_NAME}" --ttl=300 --type=A --zone="${ZONE_NAME}"
+  gcloud dns record-sets transaction add "${BOSH_LITE_IP}" --name='tcp.'"${DNS_NAME}" --ttl=300 --type=A --zone="${ZONE_NAME}"
+  gcloud dns record-sets transaction add "${BOSH_LITE_IP}" --name='*.ws.'"${DNS_NAME}" --ttl=300 --type=A --zone="${ZONE_NAME}"
 
 gcloud dns record-sets transaction execute --zone="${ZONE_NAME}"
+
+
+#3. add the parent zone (buildpacks zone) subdomain NS records
+NAMESERVERS=$(gcloud dns managed-zones describe "${ZONE_NAME}" --format='value[delimiter="
+"](nameServers)')
+
+gcloud dns record-sets transaction start --zone=buildpacks
+
+  # shellcheck disable=SC2086
+  gcloud dns record-sets transaction add ${NAMESERVERS} --name "${DNS_NAME}" --ttl=300 --type=NS --zone=buildpacks
+
+gcloud dns record-sets transaction execute --zone="${ZONE_NAME}"buildpacks
