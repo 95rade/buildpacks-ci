@@ -31,11 +31,11 @@ gcloud dns record-sets transaction add "${BOSH_LITE_IP}" --name='tcp.'"${DNS_NAM
 gcloud dns record-sets transaction add "${BOSH_LITE_IP}" --name='*.ws.'"${DNS_NAME}" --ttl=300 --type=A --zone="${ZONE_NAME}"
 
 # get the NS
-NAMESERVERS=$(gcloud dns managed-zones describe "${ZONE_NAME}" --format='value[delimiter="
-"](nameServers)')
+# NAMESERVERS=$(gcloud dns managed-zones describe "${ZONE_NAME}" --format='value[delimiter="
+# "](nameServers)')
 
 # add the parent zone (buildpacks zone) subdomain NS records
 # shellcheck disable=SC2086
-gcloud dns record-sets transaction add ${NAMESERVERS} --name "${DNS_NAME}" --ttl=300 --type=NS --zone=buildpacks
+# gcloud dns record-sets transaction add ${NAMESERVERS} --name "${DNS_NAME}" --ttl=300 --type=NS --zone=buildpacks
 
 gcloud dns record-sets transaction execute --zone="${ZONE_NAME}"
