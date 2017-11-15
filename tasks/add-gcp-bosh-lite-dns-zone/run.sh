@@ -10,7 +10,7 @@ set -o xtrace
 ENV_NAME=${ENV_NAME:-}
 ZONE_NAME="${ENV_NAME}"-zone
 DNS_NAME="${ENV_NAME}.buildpacks-gcp.ci.cf-app.com."
-BOSH_LITE_IP=$(cd bbl-state && bbl bosh-deployment-vars | grep external_ip | awk '{print $2}')
+BOSH_LITE_IP=$(cd bbl-state/"${ENV_NAME}" && bbl bosh-deployment-vars | grep external_ip | awk '{print $2}')
 
 gcloud auth activate-service-account --key-file /tmp/gcp_key
 
