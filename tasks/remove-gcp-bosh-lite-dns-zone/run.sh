@@ -16,7 +16,7 @@ gcloud config set project cf-buildpacks
 
 # remove the parent zone records
 gcloud dns record-sets transaction start --zone="${ZONE_NAME}"
-  gcloud dns record sets transaction remove "${BOSH_LITE_IP}" --name='*.'"${DNS_NAME}" --ttl=300 --type=A --zone="${ZONE_NAME}"
+  gcloud dns record-sets transaction remove "${BOSH_LITE_IP}" --name='*.'"${DNS_NAME}" --ttl=300 --type=A --zone="${ZONE_NAME}"
   gcloud dns record-sets transaction remove "${BOSH_LITE_IP}" --name='bosh.'"${DNS_NAME}" --ttl=300 --type=A --zone="${ZONE_NAME}"
   gcloud dns record-sets transaction remove "${BOSH_LITE_IP}" --name='doppler.'"${DNS_NAME}" --ttl=300 --type=A --zone="${ZONE_NAME}"
   gcloud dns record-sets transaction remove "${BOSH_LITE_IP}" --name='loggregator.'"${DNS_NAME}" --ttl=300 --type=A --zone="${ZONE_NAME}"
@@ -35,5 +35,5 @@ gcloud dns managed-zones delete "${ZONE_NAME}"
 # remove the parent zone (buildpacks zone) subdomain NS records
 gcloud dns record-sets transaction start --zone=buildpacks
   # shellcheck disable=SC2086
-  gcloud dns record sets transaction remove ${NAMESERVERS} --name "${DNS_NAME}" --ttl=300 --type=NS --zone=buildpacks
+  gcloud dns record-sets transaction remove ${NAMESERVERS} --name "${DNS_NAME}" --ttl=300 --type=NS --zone=buildpacks
 gcloud dns record-sets transaction execute --zone=buildpacks
