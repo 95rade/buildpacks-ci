@@ -27,7 +27,7 @@ gcloud dns record-sets transaction add "${BOSH_LITE_IP}" --name='doppler.'"${DNS
 gcloud dns record-sets transaction add "${BOSH_LITE_IP}" --name='loggregator.'"${DNS_NAME}" --ttl=300 --type=A --zone="${ZONE_NAME}"
 gcloud dns record-sets transaction add "${BOSH_LITE_IP}" --name='ssh.'"${DNS_NAME}" --ttl=300 --type=A --zone="${ZONE_NAME}"
 gcloud dns record-sets transaction add "${BOSH_LITE_IP}" --name='tcp.'"${DNS_NAME}" --ttl=300 --type=A --zone="${ZONE_NAME}"
-gcloud dns record-sets transaction add "${BOSH_LITE_IP}" --name='*.ws'"${DNS_NAME}" --ttl=300 --type=A --zone="${ZONE_NAME}"
+gcloud dns record-sets transaction add "${BOSH_LITE_IP}" --name='*.ws.'"${DNS_NAME}" --ttl=300 --type=A --zone="${ZONE_NAME}"
 
 # get the NS
 NAMESERVERS=$(gcloud dns managed-zones describe "${ZONE_NAME}" --format='value[delimiter="
