@@ -43,4 +43,4 @@ gcloud dns record-sets transaction start --zone=buildpacks
   # shellcheck disable=SC2086
   gcloud dns record-sets transaction add ${NAMESERVERS} --name "${DNS_NAME}" --ttl=300 --type=NS --zone=buildpacks
 
-gcloud dns record-sets transaction execute --zone="${ZONE_NAME}"buildpacks
+gcloud dns record-sets transaction execute --zone=buildpacks
