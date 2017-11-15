@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+echo $GCP_SERVICE_ACCOUNT_KEY > /tmp/gcp_key
+
+set -o errexit
+set -o nounset
+set -o pipefail
+set -o xtrace
+
+ZONE_NAME="${ENV_NAME}"-zone
+DNS_NAME="${ENV_NAME}.buildpacks-gcp.ci.cf-app.com."
+
+gcloud auth activate-service-account --key-file /tmp/gcp_key
+
+gcloud config set project cf-buildpacks
+
+#1. create zone
+gcloud dns managed-zones create "${ZONE_NAME}" --description="${ENV_NAME} Zone" --dns-name="${DNS_NAME}"
+
+#2. add individual items:
+gcloud dns record-sets transaction add "${BOSH_LITE_IP}" --name='*.'"${DNS_NAME}" --ttl=300 --type=A --zone="${ZONE_NAME}"
+gcloud dns record-sets transaction add "${BOSH_LITE_IP}" --name='bosh.'"${DNS_NAME}" --ttl=300 --type=A --zone="${ZONE_NAME}"
+gcloud dns record-sets transaction add "${BOSH_LITE_IP}" --name='doppler.'"${DNS_NAME}" --ttl=300 --type=A --zone="${ZONE_NAME}"
+gcloud dns record-sets transaction add "${BOSH_LITE_IP}" --name='loggregator.'"${DNS_NAME}" --ttl=300 --type=A --zone="${ZONE_NAME}"
+gcloud dns record-sets transaction add "${BOSH_LITE_IP}" --name='ssh.'"${DNS_NAME}" --ttl=300 --type=A --zone="${ZONE_NAME}"
+gcloud dns record-sets transaction add "${BOSH_LITE_IP}" --name='tcp.'"${DNS_NAME}" --ttl=300 --type=A --zone="${ZONE_NAME}"
+gcloud dns record-sets transaction add "${BOSH_LITE_IP}" --name='*.ws'"${DNS_NAME}" --ttl=300 --type=A --zone="${ZONE_NAME}"
+
+# get the NS
+NAMESERVERS=$(gcloud dns managed-zones describe "${ZONE_NAME}" --format='value[delimiter="
+"](nameServers)')
+
+# add the parent zone (buildpacks zone) subdomain NS records
+gcloud dns record-sets transaction add "${NAMESERVERS}" --name "${DNS_NAME}" --ttl=300 --type=NS --zone=buildpacks
+
