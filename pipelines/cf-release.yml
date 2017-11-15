@@ -65,9 +65,9 @@ resources:
   - name: cf-deployment-concourse-tasks
     type: git
     source:
-      branch: master
-      uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
-      tag_filter: v4.*
+      branch: PR-is-bosh-lite-to-bbl-up
+      uri: https://github.com/Gerg/cf-deployment-concourse-tasks.git
+      # tag_filter: v4.*
   - name: bosh-deployment
     type: git
     source:
@@ -215,6 +215,7 @@ jobs:
           BBL_ENV_NAME: cf-release
           BBL_STATE_DIR: cf-release
           OPS_FILES: "bosh-lite.yml bosh-lite-runc.yml gcp/bosh-lite-vm-type.yml"
+          IS_BOSH_LITE: true
         input_mapping:
           ops-files: bosh-deployment
         ensure:
@@ -224,6 +225,11 @@ jobs:
             rebase: true
       - task: add-firewall-rule
         file: buildpacks-ci/tasks/add-bosh-lite-gcp-firewall-rule/task.yml
+        params:
+          GCP_SERVICE_ACCOUNT_KEY: {{gcp-service-account-key}}
+          ENV_NAME: cf-release
+      - task: add-dns-zone
+        file: buildpacks-ci/tasks/add-gcp-bosh-lite-dns-zone/task.yml
         params:
           GCP_SERVICE_ACCOUNT_KEY: {{gcp-service-account-key}}
           ENV_NAME: cf-release
@@ -379,15 +385,31 @@ jobs:
       - aggregate:
         - get: cf-deployment-concourse-tasks
         - get: bbl-state
+        - get: buildpacks-ci
         - get: public-robots
           passed: [ cats ]
           trigger: true
+      - task: remove-firewall-rule
+        file: buildpacks-ci/tasks/remove-bosh-lite-gcp-firewall-rule/task.yml
+        params:
+          GCP_SERVICE_ACCOUNT_KEY: {{gcp-service-account-key}}
+          ENV_NAME: cf-release
+      # - task: remove-gcp-bosh-lite-dns-zone
+      #   file: buildpacks-ci/tasks/remove-gcp-bosh-lite-dns-zone/task.yml
+      #   params:
+      #     GCP_SERVICE_ACCOUNT_KEY: {{gcp-service-account-key}}
+      #     ENV_NAME: cf-release
       - task: bbl-destroy
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         params:
           BBL_STATE_DIR: cf-release
           BBL_GCP_PROJECT_ID: cf-buildpacks
           BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp-service-account-key}}
+        ensure:
+          put: bbl-state
+          params:
+            repository: updated-bbl-state
+            rebase: true
 
   - name: ship-it
     serial: true
