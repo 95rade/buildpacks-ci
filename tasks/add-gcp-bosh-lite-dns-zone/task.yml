@@ -8,6 +8,7 @@ image_resource:
 
 inputs:
 - name: buildpacks-ci
+- name: bbl-state
 
 run:
   path: buildpacks-ci/tasks/add-gcp-bosh-lite-dns-zone/run.sh
