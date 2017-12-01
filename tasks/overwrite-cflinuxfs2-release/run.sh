@@ -21,7 +21,7 @@ cp stack-s3/*.tar.gz "$release_dir/blobs/$filename"
 pushd $release_dir
     echo "Running 'bosh create release' in $release_dir"
 
-    bosh create release --force --with-tarball --name "$ROOTFS_RELEASE" --version "${version}"
+    bosh2 -n create-release --force --tarball "dev_releases/cflinuxfs2/release-$version.tgz" --name "$ROOTFS_RELEASE" --version "${version}"
     ./scripts/generate-bosh-lite-manifest
 popd
 

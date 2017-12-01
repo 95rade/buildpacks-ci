@@ -334,8 +334,7 @@ jobs:
     plan:
       - aggregate:
         - get: buildpacks-ci
-        - get: cats-concourse-task-inp
-          resource: cats-concourse-task
+        - get: cats-concourse-task
         - get: cf-release
           resource: cf-release-rc
           params:
@@ -374,13 +373,11 @@ jobs:
             CI_CF_PASSWORD: {{cf-release-cf-password}}
             APPS_DOMAIN: cf-release.buildpacks-gcp.ci.cf-app.com
             DIEGO_DOCKER_ON: true
-        - task: add-flake-attempts-to-cats
-          file: buildpacks-ci/tasks/add-flake-attempts-to-cats/task.yml
         - task: cats
           attempts: 3
           file: cats-concourse-task/task.yml
           params:
-            NODES: 12
+            NODES: 4
             CONFIG_FILE_PATH: integration_config.json
         on_failure:
           put: failure-alert

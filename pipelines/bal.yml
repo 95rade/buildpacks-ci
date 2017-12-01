@@ -227,8 +227,7 @@ jobs:
         - get: bal-develop
           passed: [deploy-cf-and-diego-to-cf-release]
           trigger: true
-        - get: cats-concourse-task-inp
-          resource: cats-concourse-task
+        - get: cats-concourse-task
         - get: cf-acceptance-tests
       - do:
         - task: write-cats-config
@@ -239,13 +238,11 @@ jobs:
             APPS_DOMAIN: bal.buildpacks-gcp.ci.cf-app.com
             DIEGO_DOCKER_ON: true
             CREDHUB_MODE: assisted
-        - task: add-flake-attempts-to-cats
-          file: buildpacks-ci/tasks/add-flake-attempts-to-cats/task.yml
         - task: cats
           attempts: 3
           file: cats-concourse-task/task.yml
           params:
-            NODES: 12
+            NODES: 4
             CONFIG_FILE_PATH: integration_config.json
         on_failure:
           put: failure-alert
