@@ -25,9 +25,14 @@ EOF
   touch config/blobs.yml
 
   # shellcheck disable=SC2086
-  BLOB=../$BLOB_GLOB
+  BLOB="$(ls ../$BLOB_GLOB)"
 
-  bosh2 -n add-blob "$BLOB" "$BLOB_NAME/$(basename $BLOB)"
+  if [ ! -f "$BLOB" ] ; then
+    echo "cflinuxfs2 blob not found at $BLOB_GLOB"
+    exit 1
+  fi
+
+  bosh2 -n add-blob "$BLOB" "$BLOB_NAME/$(basename "$BLOB")"
   bosh2 -n upload-blobs
 
   git add config/blobs.yml
