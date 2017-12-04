@@ -22,9 +22,12 @@ EOF
   fi
 
   rm -f config/blobs.yml
-  # here, we actually want globbing, so:
+  touch config/blobs.yml
+
   # shellcheck disable=SC2086
-  bosh2 -n add-blob ../$BLOB_GLOB "$BLOB_NAME"
+  BLOB=../$BLOB_GLOB
+
+  bosh2 -n add-blob "$BLOB" "$BLOB_NAME/$(basename $BLOB)"
   bosh2 -n upload-blobs
 
   git add config/blobs.yml
