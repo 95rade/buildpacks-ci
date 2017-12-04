@@ -24,13 +24,13 @@ EOF
   rm -f config/blobs.yml
   # here, we actually want globbing, so:
   # shellcheck disable=SC2086
-  bosh -n add blob ../$BLOB_GLOB "$BLOB_NAME"
-  bosh -n upload blobs
+  bosh2 -n add-blob ../$BLOB_GLOB "$BLOB_NAME"
+  bosh2 -n upload-blobs
 
   git add config/blobs.yml
   git commit -m "Updating blobs for $RELEASE_NAME bosh release version $bosh_release_version"
 
-  bosh -n create release --final --version "$bosh_release_version" --name "$RELEASE_NAME" --with-tarball
+  bosh2 -n create-release --final --version "$bosh_release_version" --name "$RELEASE_NAME" --tarball "releases/$RELEASE_NAME/$RELEASE_NAME-$bosh_release_version.tgz"
   git add .final_builds "releases/**/*-$bosh_release_version.yml" releases/**/index.yml
   git commit -m "Final $RELEASE_NAME bosh release version $bosh_release_version, containing cflinuxfs2 version $stacks_version"
 popd
