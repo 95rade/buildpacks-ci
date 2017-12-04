@@ -68,28 +68,12 @@ resources: #####################################################################
       paths: [ new-cve-notifications/ubuntu14.04.yml ]
       private_key: {{public-buildpacks-ci-robots-private-key}}
 
-  - name: receipt-diff
-    type: git
-    source:
-      uri: git@github.com:cloudfoundry/public-buildpacks-ci-robots
-      branch: master
-      paths: [ receipt-diffs/cflinuxfs2-diff ]
-      private_key: {{public-buildpacks-ci-robots-private-key}}
-      tag_filter: "newpackages_cflinuxfs2_*"
-
   - name: public-robots
     type: git
     source:
       uri: git@github.com:cloudfoundry/public-buildpacks-ci-robots
       branch: master
       private_key: {{public-buildpacks-ci-robots-private-key}}
-
-  - name: deployments-buildpacks
-    type: git
-    source:
-      uri: {{deployments-git-uri}}
-      private_key: {{deployments-private-key}}
-      branch: master
 
   - name: bosh-lite
     type: git
@@ -299,28 +283,12 @@ jobs: ##########################################################################
             icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
 
   - name: bbl-up-bosh-lite
-    serial: true
-    serial_groups: [ cflinuxfs2 ]
     public: true
     plan:
       - aggregate:
         - get: cf-deployment-concourse-tasks
         - get: bbl-state
         - get: bosh-deployment
-        - get: deployments-buildpacks
-        - get: buildpacks-ci
-        - get: new-cves
-          passed: [ build-rootfs ]
-        - get: stack-s3
-          passed: [ build-rootfs ]
-        - get: version
-          passed: [ build-rootfs ]
-        - get: receipt-s3
-          passed: [ build-rootfs ]
-        - get: cflinuxfs2
-          passed: [ build-rootfs ]
-        - get: receipt-diff
-          trigger: true
       - task: bbl-up
         file: cf-deployment-concourse-tasks/bbl-up/task.yml
         params:
@@ -350,19 +318,17 @@ jobs: ##########################################################################
     plan:
       - do:
         - aggregate:
-          - get: deployments-buildpacks
-            passed: [ bbl-up-bosh-lite ]
           - get: new-cves
-            passed: [ bbl-up-bosh-lite ]
+            passed: [ build-rootfs ]
           - get: stack-s3
-            passed: [ bbl-up-bosh-lite ]
+            passed: [ build-rootfs ]
           - get: version
-            passed: [ bbl-up-bosh-lite ]
+            passed: [ build-rootfs ]
             trigger: true
           - get: receipt-s3
-            passed: [ bbl-up-bosh-lite ]
+            passed: [ build-rootfs ]
           - get: cflinuxfs2
-            passed: [ bbl-up-bosh-lite ]
+            passed: [ build-rootfs ]
           - get: cflinuxfs2-release
             attempts: 3
           - get: buildpacks-ci
@@ -451,8 +417,6 @@ jobs: ##########################################################################
           passed: [ deploy-rootfs-and-cf-and-diego-to-cflinuxfs2 ]
         - get: stack-s3
           passed: [ deploy-rootfs-and-cf-and-diego-to-cflinuxfs2 ]
-        - get: deployments-buildpacks
-          passed: [ deploy-rootfs-and-cf-and-diego-to-cflinuxfs2 ]
         - get: version
           passed: [ deploy-rootfs-and-cf-and-diego-to-cflinuxfs2 ]
           trigger: true
@@ -486,39 +450,22 @@ jobs: ##########################################################################
             username: concourse
             icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
 
-  # - name: bbl-destroy-bosh-lite
-  #   serial: true
-  #   serial_groups: [ cflinuxfs2 ]
-  #   public: true
-  #   plan:
-  #     - aggregate:
-  #       - get: deployments-buildpacks
-  #         passed: [ cats ]
-  #         trigger: true
-  #       - get: cf-deployment-concourse-tasks
-  #       - get: bbl-state
-  #       - get: buildpacks-ci
-  #     - task: remove-firewall-rule
-  #       file: buildpacks-ci/tasks/remove-bosh-lite-gcp-firewall-rule/task.yml
-  #       params:
-  #         GCP_SERVICE_ACCOUNT_KEY: {{gcp-service-account-key}}
-  #         ENV_NAME: cflinuxfs2
-  #     - task: remove-gcp-bosh-lite-dns-zone
-  #       file: buildpacks-ci/tasks/remove-gcp-bosh-lite-dns-zone/task.yml
-  #       params:
-  #         GCP_SERVICE_ACCOUNT_KEY: {{gcp-service-account-key}}
-  #         ENV_NAME: cflinuxfs2
-  #     - task: bbl-destroy
-  #       file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-  #       params:
-  #         BBL_STATE_DIR: cflinuxfs2
-  #         BBL_GCP_PROJECT_ID: cf-buildpacks
-  #         BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp-service-account-key}}
-  #       ensure:
-  #         put: bbl-state
-  #         params:
-  #           repository: updated-bbl-state
-  #           rebase: true
+  - name: delete-deployment
+    serial: true
+    serial_groups: [ cflinuxfs2 ]
+    public: true
+    plan:
+      - aggregate:
+        - get: version
+          passed: [ cats ]
+          trigger: true
+        - get: bbl-state
+        - get: buildpacks-ci
+      - task: delete-deployment
+        file: buildpacks-ci/tasks/delete-deployment/task.yml
+        params:
+          DEPLOYMENT_NAME: cf
+          ENV_NAME: cflinuxfs2
 
   - name: release-cflinuxfs2
     serial: true
