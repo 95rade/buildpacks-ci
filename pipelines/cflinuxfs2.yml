@@ -419,6 +419,7 @@ jobs: ##########################################################################
               # - lite-stemcell/*.tgz
             ops_files:
               # - cf-deployment/operations/bosh-lite.yml
+              - cf-deployment/operations/use-compiled-releases.yml
               - buildpacks-ci/deployments/operations/no-canaries.yml
               - cflinuxfs2-release-artifacts/use-dev-release-opsfile.yml
               - cf-deployment/operations/experimental/use-bosh-dns.yml

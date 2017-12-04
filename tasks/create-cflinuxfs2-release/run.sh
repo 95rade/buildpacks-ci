@@ -15,7 +15,7 @@ pushd release
   cat > config/private.yml <<EOF
 ---
 blobstore:
-  s3:
+  options:
     access_key_id: $ACCESS_KEY_ID
     secret_access_key: $SECRET_ACCESS_KEY
 EOF
