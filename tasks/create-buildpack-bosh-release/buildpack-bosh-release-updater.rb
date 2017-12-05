@@ -17,13 +17,9 @@ class BuildpackBOSHReleaseUpdater
 
   def run!
     write_private_yml if @access_key_id
-    puts "A"
     delete_old_blob
-    puts "B"
     add_new_blob
-    puts "C"
     create_release
-    puts "D"
   end
 
   def write_private_yml
@@ -53,15 +49,15 @@ class BuildpackBOSHReleaseUpdater
   def add_new_blob
     buildpack_blob = Dir[@blob_glob].first
 
-    system "bosh -n add blob #{buildpack_blob} #{@blob_name}" or exit 1
-    system "bosh -n upload blobs" or exit 1
+    system "bosh2 -n add-blob #{buildpack_blob} #{@blob_name}/#{buildpack_blob}" or exit 1
+    system "bosh2 -n upload-blobs" or exit 1
 
     GitClient.add_file('config/blobs.yml')
     GitClient.safe_commit("Updating blobs for #{@release_name} at #{@version}")
   end
 
   def create_release
-    system "bosh -n create release --final --version #{@version} --name #{@release_name} --force" or exit 1
+    system "bosh2 -n create-release --final --version #{@version} --name #{@release_name} --force" or exit 1
 
     GitClient.add_file("releases/**/*-#{@version}.yml")
     GitClient.add_file("releases/**/index.yml")
