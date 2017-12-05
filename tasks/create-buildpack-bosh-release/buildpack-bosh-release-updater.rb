@@ -49,7 +49,7 @@ class BuildpackBOSHReleaseUpdater
   def add_new_blob
     buildpack_blob = Dir[@blob_glob].first
 
-    system "bosh2 -n add-blob #{buildpack_blob} #{@blob_name}" or exit 1
+    system "bosh2 -n add-blob #{buildpack_blob} #{@blob_name}/#{File.basename(buildpack_blob)}" or exit 1
     system "bosh2 -n upload-blobs" or exit 1
 
     GitClient.add_file('config/blobs.yml')
