@@ -344,36 +344,29 @@ jobs: ##########################################################################
             attempts: 3
           - get: gcp-stemcell
             attempts: 3
-          # - get: lite-stemcell
-          #   attempts: 3
         - aggregate:
           - task: create-deployment-source-config
             file: buildpacks-ci/tasks/create-deployment-source-config/task.yml
             params:
               ENV_NAME: cflinuxfs2
-          # - task: use-bosh-lite-cloud-config
-          #   file: buildpacks-ci/tasks/use-bosh-lite-cloud-config/task.yml
-          #   params:
-          #     ENV_NAME: cflinuxfs2
-          # - task: upload-stemcell-to-bosh-lite
-          #   file: buildpacks-ci/tasks/upload-stemcell-to-bosh-lite/task.yml
-          #   params:
-          #     ENV_NAME: cflinuxfs2
+          - task: upload-stemcell-to-bosh-lite
+            file: buildpacks-ci/tasks/upload-stemcell-to-bosh-lite/task.yml
+            params:
+              ENV_NAME: cflinuxfs2
           - task: overwrite-cflinuxfs2-release
             file: buildpacks-ci/tasks/overwrite-cflinuxfs2-release/task.yml
             params:
               ROOTFS_RELEASE: cflinuxfs2
-        # - put: cflinuxfs2-rootfs-deployment
-        #   params:
-        #     source_file: deployment-source-config/source_file.yml
-        #     manifest: cflinuxfs2-release-artifacts/manifests/bosh-lite/rootfs-smoke-test.yml
-        #     releases:
-        #       - cflinuxfs2-release-artifacts/dev_releases/cflinuxfs2/*.tgz
-        # FIXME: The below should be enabled
-        # - task: run-rootfs-smoke-test
-        #   file: buildpacks-ci/tasks/run-rootfs-smoke-test/task.yml
-        #   params:
-        #     ENV_NAME: cflinuxfs2
+        - put: cflinuxfs2-rootfs-deployment
+          params:
+            source_file: deployment-source-config/source_file.yml
+            manifest: cflinuxfs2-release-artifacts/manifests/bosh-lite/rootfs-smoke-test.yml
+            releases:
+              - cflinuxfs2-release-artifacts/dev_releases/cflinuxfs2/*.tgz
+        - task: run-rootfs-smoke-test
+          file: buildpacks-ci/tasks/run-rootfs-smoke-test/task.yml
+          params:
+            ENV_NAME: cflinuxfs2
         - put: cflinuxfs2-cf-deployment
           params:
             source_file: deployment-source-config/source_file.yml
@@ -382,9 +375,7 @@ jobs: ##########################################################################
               - cflinuxfs2-release-artifacts/dev_releases/cflinuxfs2/*.tgz
             stemcells:
               - gcp-stemcell/*.tgz
-              # - lite-stemcell/*.tgz
             ops_files:
-              # - cf-deployment/operations/bosh-lite.yml
               - cf-deployment/operations/use-compiled-releases.yml
               - buildpacks-ci/deployments/operations/no-canaries.yml
               - cflinuxfs2-release-artifacts/use-dev-release-opsfile.yml
