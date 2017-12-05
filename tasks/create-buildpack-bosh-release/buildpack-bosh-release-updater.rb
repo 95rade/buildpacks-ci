@@ -28,7 +28,7 @@ class BuildpackBOSHReleaseUpdater
     private_yml = <<~YAML
                      ---
                      blobstore:
-                       s3:
+                       options:
                          access_key_id: #{@access_key_id}
                          secret_access_key: #{@secret_access_key}
                      YAML

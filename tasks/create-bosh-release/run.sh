@@ -15,14 +15,14 @@ pushd "$RELEASE_DIR"
     cat > config/private.yml <<EOF
 ---
 blobstore:
+  provider: s3
   options:
     access_key_id: $ACCESS_KEY_ID
+    bucket_name: pivotal-offline-buildpacks
     secret_access_key: $SECRET_ACCESS_KEY
+    credentials_source: static
 EOF
   fi
-
-  sed -i -re 's/(\s+bucket_name:).*/\1 pivotal-offline-buildpacks/' config/final.yml
-
   rm -rf blobs
   [ -f config/blobs.yml ] || echo -e "---\n{}" > config/blobs.yml
   for name in $( bosh2 blobs | grep -- '-buildpack/.*_buildpack' | awk '{print $1}' ); do
