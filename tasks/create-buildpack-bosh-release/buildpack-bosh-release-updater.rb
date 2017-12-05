@@ -17,9 +17,13 @@ class BuildpackBOSHReleaseUpdater
 
   def run!
     write_private_yml if @access_key_id
+    puts "A"
     delete_old_blob
+    puts "B"
     add_new_blob
+    puts "C"
     create_release
+    puts "D"
   end
 
   def write_private_yml
