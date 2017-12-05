@@ -22,7 +22,6 @@ pushd $release_dir
     echo "Running 'bosh create release' in $release_dir"
 
     bosh2 create-release --force --tarball "dev_releases/$ROOTFS_RELEASE/$ROOTFS_RELEASE-$version.tgz" --name "$ROOTFS_RELEASE" --version "${version}"
-    ./scripts/generate-bosh-lite-manifest
 popd
 
 cat <<EOF > ${release_dir}/use-dev-release-opsfile.yml
