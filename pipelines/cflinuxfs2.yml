@@ -300,6 +300,7 @@ jobs: ##########################################################################
         - get: cf-deployment-concourse-tasks
         - get: bbl-state
         - get: bosh-deployment
+        - get: buildpacks-ci
         - get: receipt-diff
           trigger: true
         - get: new-cves
