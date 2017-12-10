@@ -1,0 +1,1 @@
+{"rustc":8291033049748019918,"features":"[]","target":4238902828226038619,"profile":731176819336294830,"deps":[["serde_json v1.0.7",14585379240604300921]],"local":[{"MtimeBased":[[1512526411,84844973],"/Users/dgodd/workspace/buildpacks-ci/dockerfiles/depwatcher/target/debug/.fingerprint/depwatcher-481d6c4a470be9dd/dep-bin-depwatcher-481d6c4a470be9dd"]}],"rustflags":[]}
