@@ -102,6 +102,7 @@ jobs:
             - buildpacks-ci/deployments/edge-shared/use-latest-windows-stemcell.yml
             - buildpacks-ci/deployments/operations/add-credhub-ca-cert-to-windows-cells.yml
             - buildpacks-ci/deployments/edge-shared/num-cells.yml
+            - cf-deployment/operations/experimental/enable-instance-identity-credentials.yml
             vars:
               system_domain: edge.buildpacks-gcp.ci.cf-app.com
         on_failure:
