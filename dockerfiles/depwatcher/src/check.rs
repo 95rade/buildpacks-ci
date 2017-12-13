@@ -28,11 +28,9 @@ fn main() {
     let stdin = io::stdin();
     stdin.lock().read_to_string(&mut data).expect("Could not read line");
     let v: Outer = serde_json::from_str(&data).expect("Could not parse stdin");
-    match v.source.kind.as_ref() {
-        "pypi" => {
-            let v = pypi::check(&v.source.name).expect("Could not parse json");
-            println!("{}", serde_json::to_string(&v).expect("Could not serialise"));
-        },
-        x => println!("Unknown: {:?} -- {:?}", x, v.source.name),
+    let data = match v.source.kind.as_ref() {
+        "pypi" => serde_json::to_string(&pypi::check(&v.source.name).expect("Could not parse json")),
+        x => Ok(format!("Unknown: {:?} -- {:?}", x, v.source.name)),
     };
+    println!("{}", data.expect("Could not serialise"));
 }
