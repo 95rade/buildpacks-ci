@@ -23,7 +23,7 @@ resources:
     type: git
     source:
       uri: {{buildpacks-ci-git-uri-public}}
-      branch: {{buildpacks-ci-git-uri-public-branch}}
+      branch: fixedge # {{buildpacks-ci-git-uri-public-branch}}
 
   - name: cf-deployment
     type: git
