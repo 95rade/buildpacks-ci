@@ -1,6 +1,7 @@
 <% dependencies = {
   pipenv: %w(python),
   setuptools: %w(python),
+  ruby: %w(),
 } %>
 resource_types:
 - name: depwatcher
@@ -16,7 +17,7 @@ resources:
   type: git
   source:
     uri: {{buildpacks-ci-git-uri-public}}
-    branch: {{buildpacks-ci-git-uri-public-branch}}
+    branch: build_ruby # {{buildpacks-ci-git-uri-public-branch}}
 
 - name: source-pipenv
   type: depwatcher
@@ -28,7 +29,11 @@ resources:
   source:
     type: pypi
     name: setuptools
-
+- name: source-ruby
+  type: depwatcher
+  source:
+    type: ruby_lang
+    name: ruby
 <% dependencies.each do |dep, _| %>
 - name: buildpacks-bucket-<%= dep %>
   type: s3
@@ -101,7 +106,7 @@ jobs:
       resource: builds-<%= dep %>
   - do:
     - task: build-binary
-      file: buildpacks-ci/tasks/build-binary-new/task.yml
+      file: buildpacks-ci/tasks/build-binary-new/build.yml
     - put: buildpacks-bucket-<%= dep %>
       params:
         file: artifacts/<%= dep %>*
