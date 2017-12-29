@@ -1,7 +1,8 @@
 <% dependencies = {
-  pipenv: %w(python),
-  setuptools: %w(python),
-  ruby: %w(),
+  pipenv: { python: {} },
+  setuptools: { python: {} },
+  ruby: { ruby: { line: 'minor', keep_master: true } },
+  # node: { node: { line: 'major', keep_master: true }, ruby: { line: 'major', keep_master: false } },
 } %>
 resource_types:
 - name: depwatcher
