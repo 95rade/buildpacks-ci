@@ -32,7 +32,7 @@ class Dependencies
       Gem::Version.new(version).segments[0] == Gem::Version.new(@dep['version']).segments[0]
     when 'minor'
       Gem::Version.new(version).segments[0,2] == Gem::Version.new(@dep['version']).segments[0,2]
-    when nil, ''
+    when nil, '', 'null'
       true
     else
       raise "Unknown version line specifier: #{@line}"

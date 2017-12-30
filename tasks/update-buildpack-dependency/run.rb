@@ -7,6 +7,8 @@ buildpacks_ci_dir = File.expand_path(File.join(File.dirname(__FILE__), '..', '..
 require_relative "#{buildpacks_ci_dir}/lib/git-client"
 
 manifest = YAML.load_file('buildpack/manifest.yml')
+manifest_master = YAML.load_file('buildpack-master/manifest.yml')
+
 data = JSON.parse(open('source/data.json').read)
 name = data.dig('source', 'name')
 version = data.dig('version', 'ref')
@@ -32,7 +34,7 @@ raise('Could not copy buildpack to artifacts') unless $?.success?
 #   exit 0
 # end
 
-manifest['dependencies'] = Dependencies.switch(name, ENV['VERSION_LINE'], ENV['KEEP_MASTER'], manifest['dependencies'])
+manifest['dependencies'] = Dependencies.switch(name, ENV['VERSION_LINE'], ENV['KEEP_MASTER'], manifest['dependencies'], manifest_master['dependencies'])
 
 Dir.chdir('artifacts') do
   GitClient.set_global_config('user.email', 'cf-buildpacks-eng@pivotal.io')

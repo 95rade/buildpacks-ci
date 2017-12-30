@@ -16,3 +16,6 @@ run:
   args:
     - -cl
     - buildpacks-ci/tasks/update-buildpack-dependency/run.rb
+params:
+  VERSION_LINE:
+  KEEP_MASTER:

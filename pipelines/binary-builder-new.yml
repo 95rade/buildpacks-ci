@@ -55,13 +55,19 @@ resources:
     private_key: {{public-buildpacks-ci-robots-private-key}}
 <% end %>
 
-<% dependencies.values.flatten.uniq.each do |buildpack| %>
+<% dependencies.values.map(&:keys).flatten.uniq.each do |buildpack| %>
 - name: <%= buildpack %>-buildpack
   type: git
   source:
     uri: git@github.com:cloudfoundry/<%= buildpack %>-buildpack.git
     private_key: {{<%= buildpack %>-buildpack-private-key}}
-    branch: develop
+    branch: dgodd # develop
+- name: <%= buildpack %>-buildpack-master
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry/<%= buildpack %>-buildpack.git
+    private_key: {{<%= buildpack %>-buildpack-private-key}}
+    branch: master
 <% end %>
 
 jobs:
@@ -85,7 +91,7 @@ jobs:
         TRACKER_PROJECT_ID: {{cf-buildpacks-public-tracker-id}}
         TRACKER_REQUESTER_ID: {{cf-buildpacks-requester-id}}
         TRACKER_API_TOKEN: {{pivotal-tracker-api-token}}
-        BUILDPACKS: <%= buildpacks.join(' ') %>
+        BUILDPACKS: <%= buildpacks.keys.join(' ') %>
     - put: builds-<%= dep %>
       params:
         repository: builds-artifacts
@@ -116,7 +122,7 @@ jobs:
         repository: builds-artifacts
         rebase: true
 
-<% buildpacks.each do |buildpack| %>
+<% buildpacks.each do |buildpack, options| %>
 - name: update-<%= dep %>-<%= buildpack %>
   serial: true
   public: true
@@ -124,6 +130,8 @@ jobs:
   - aggregate:
     - get: buildpack
       resource: <%= buildpack %>-buildpack
+    - get: buildpack-master
+      resource: <%= buildpack %>-buildpack-master
     - get: buildpacks-ci
     - get: source
       resource: source-<%= dep %>
@@ -135,6 +143,9 @@ jobs:
   - do:
     - task: update-buildpack-dependency
       file: buildpacks-ci/tasks/update-buildpack-dependency/task.yml
+      params:
+        VERSION_LINE: <%= options[:line] %>
+        KEEP_MASTER: <%= options[:keep_master] %>
     - put: <%= buildpack %>-buildpack
       params:
         repository: artifacts
@@ -153,7 +164,7 @@ jobs:
       trigger: true
       version: every
       passed:
-      <% buildpacks.each do |buildpack| %>
+      <% buildpacks.each do |buildpack, _| %>
       - update-<%= dep %>-<%= buildpack %>
       <% end %>
     - get: builds
