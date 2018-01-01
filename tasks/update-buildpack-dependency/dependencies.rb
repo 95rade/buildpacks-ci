@@ -12,7 +12,9 @@ class Dependencies
 
   def switch
     return @dependencies unless latest?
-    (@dependencies - @matching_deps + [@dep] + master_dependencies).compact.sort_by do |d|
+    out = ((@dependencies - @matching_deps) + [@dep] + master_dependencies)
+p out
+    out.sort_by do |d|
       version = Gem::Version.new(d['version']) rescue d['version']
       [ d['name'], version ]
     end
@@ -27,11 +29,17 @@ class Dependencies
   end
 
   def same_line?(version)
+    version = begin
+      Gem::Version.new(version)
+    rescue
+      return false
+    end
+
     case @line
     when 'major'
-      Gem::Version.new(version).segments[0] == Gem::Version.new(@dep['version']).segments[0]
+      version.segments[0] == Gem::Version.new(@dep['version']).segments[0]
     when 'minor'
-      Gem::Version.new(version).segments[0,2] == Gem::Version.new(@dep['version']).segments[0,2]
+      version.segments[0,2] == Gem::Version.new(@dep['version']).segments[0,2]
     when nil, '', 'null'
       true
     else
@@ -41,11 +49,10 @@ class Dependencies
 
   def master_dependencies
     return [] unless @keep_master == 'true'
-
     dep = @master_dependencies.select do |d|
       d['name'] == @dep['name'] && same_line?(d['version'])
-    end.sort_by { |d| Gem::Version.new(d['version']) }.last
-    [dep]
+    end.sort_by { |d| Gem::Version.new(d['version']) rescue d['version'] }.last
+    dep ? [dep] : []
   end
 end
 
