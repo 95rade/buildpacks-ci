@@ -34,7 +34,7 @@ raise('Could not copy buildpack to artifacts') unless $?.success?
 #   exit 0
 # end
 
-manifest['dependencies'] = Dependencies.switch(name, ENV['VERSION_LINE'], ENV['KEEP_MASTER'], manifest['dependencies'], manifest_master['dependencies'])
+manifest['dependencies'] = Dependencies.new(name, ENV['VERSION_LINE'], ENV['KEEP_MASTER'], manifest['dependencies'], manifest_master['dependencies']).switch
 
 Dir.chdir('artifacts') do
   GitClient.set_global_config('user.email', 'cf-buildpacks-eng@pivotal.io')
