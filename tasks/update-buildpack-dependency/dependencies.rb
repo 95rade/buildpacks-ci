@@ -12,7 +12,7 @@ class Dependencies
 
   def switch
     return @dependencies unless latest?
-    (@dependencies - @matching_deps + [@dep] + master_dependencies).sort_by do |d|
+    (@dependencies - @matching_deps + [@dep] + master_dependencies).compact.sort_by do |d|
       version = Gem::Version.new(d['version']) rescue d['version']
       [ d['name'], version ]
     end
