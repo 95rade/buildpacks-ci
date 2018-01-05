@@ -58,14 +58,14 @@ resources: #####################################################################
     source:
       uri: git@github.com:cloudfoundry/cflinuxfs3.git
       branch: master
-      private_key: {{stacks-private-key}}
+      private_key: {{cflinuxfs3-private-key}}
 
   - name: new-cves
     type: git
     source:
       uri: git@github.com:cloudfoundry/public-buildpacks-ci-robots
       branch: master
-      paths: [ new-cve-notifications/ubuntu14.04.yml ]
+      paths: [ new-cve-notifications/ubuntu18.04.yml ]
       private_key: {{public-buildpacks-ci-robots-private-key}}
 
   - name: receipt-diff
@@ -144,7 +144,7 @@ resources: #####################################################################
         config:
           bucket: cflinuxfs3-cf-deployment
           file_name: vars-store.yml
-          json_key: {{cflinuxfs3-cf-deployment-gcs-service-account-key}}
+          json_key: {{cflinuxfs2-cf-deployment-gcs-service-account-key}}
 
   - name: cflinuxfs3-rootfs-smoke-test-deployment
     type: bosh-deployment
@@ -177,16 +177,16 @@ resources: #####################################################################
     type: docker-image
     source:
       repository: cloudfoundry/cflinuxfs3
-      username: {{dockerhub-cflinuxfs3-username}}
-      password: {{dockerhub-cflinuxfs3-password}}
+      username: {{dockerhub-cflinuxfs2-username}}
+      password: {{dockerhub-cflinuxfs2-password}}
       email: cf-buildpacks-eng@pivotal.io
 
   - name: docker-cflinuxfs3-tagged
     type: docker-image
     source:
       repository: cloudfoundry/cflinuxfs3
-      username: {{dockerhub-cflinuxfs3-username}}
-      password: {{dockerhub-cflinuxfs3-password}}
+      username: {{dockerhub-cflinuxfs2-username}}
+      password: {{dockerhub-cflinuxfs2-password}}
       email: cf-buildpacks-eng@pivotal.io
 
   ## Github Release ##
@@ -208,6 +208,9 @@ resources: #####################################################################
       access_token: {{buildpacks-github-token}}
 
   ## Semver Versions ##
+
+
+  ## DAVE AND VICTORIA GOT HERE WHILE DOING CONVERSION
 
   - name: version
     type: semver
