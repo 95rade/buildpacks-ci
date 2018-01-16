@@ -51,7 +51,7 @@ resources: #####################################################################
     type: git
     source:
       uri: {{buildpacks-ci-git-uri-public}}
-      branch: {{buildpacks-ci-git-uri-public-branch}}
+      branch: cflinuxfs3 # {{buildpacks-ci-git-uri-public-branch}}
 
   - name: cflinuxfs3
     type: git
@@ -209,9 +209,6 @@ resources: #####################################################################
 
   ## Semver Versions ##
 
-
-  ## DAVE AND VICTORIA GOT HERE WHILE DOING CONVERSION
-
   - name: version
     type: semver
     source:
@@ -264,10 +261,10 @@ jobs: ##########################################################################
         - get: public-robots
       - do:
         - task: make-rootfs
-          file: buildpacks-ci/tasks/make-rootfs/task.yml
+          file: buildpacks-ci/tasks/make-rootfs-cflinuxfs3/task.yml
           privileged: true
         - task: test-rootfs
-          file: buildpacks-ci/tasks/test-rootfs/task.yml
+          file: buildpacks-ci/tasks/test-rootfs-cflinuxfs3/task.yml
           privileged: true
         - put: stack-s3
           params:
@@ -394,7 +391,7 @@ jobs: ##########################################################################
             stemcells:
               - gcp-stemcell/*.tgz
         - task: run-rootfs-smoke-test
-          file: buildpacks-ci/tasks/run-rootfs-smoke-test/task.yml
+          file: buildpacks-ci/tasks/run-rootfs-smoke-test-cflinuxfs3/task.yml
           params:
             ENV_NAME: cflinuxfs3
         - put: cflinuxfs3-cf-deployment
@@ -517,203 +514,203 @@ jobs: ##########################################################################
             repository: updated-bbl-state
             rebase: true
 
-  - name: release-cflinuxfs3
-    serial: true
-    serial_groups: [ cflinuxfs3 ]
-    public: true
-    plan:
-      - aggregate:
-        - get: buildpacks-ci
-        - get: new-cves
-          passed: [ 'cats' ]
-        - get: stack-s3
-          passed:
-            - cats
-        - get: receipt-s3
-          passed:
-            - cats
-        - get: cflinuxfs3
-          resource: cflinuxfs3
-          passed:
-            - cats
-        - get: version
-          passed:
-            - cats
-          trigger: true
-          params: { bump: final }
-      - do:
-        - task: update-receipt
-          file: buildpacks-ci/tasks/update-rootfs-receipt/task.yml
-        - task: update-filename
-          file: buildpacks-ci/tasks/update-rootfs-filename/task.yml
-        - put: cflinuxfs3
-          params:
-            repository: new-cflinuxfs3-commit
-            tag: version/number
-            rebase: true
-        - put: stack-s3
-          params:
-            from: cflinuxfs3-archive/cflinuxfs3-(.*).tar.gz
-            to: /rootfs/
-        - put: version
-          params: { file: version/number }
-        on_failure:
-          put: failure-alert
-          params:
-            text: "$BUILD_PIPELINE_NAME $BUILD_JOB_NAME job on Concourse failed! \n Check: $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME"
-            channel: {{concourse-job-failure-notifications-slack-channel}}
-            username: concourse
-            icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
+  # - name: release-cflinuxfs3
+  #   serial: true
+  #   serial_groups: [ cflinuxfs3 ]
+  #   public: true
+  #   plan:
+  #     - aggregate:
+  #       - get: buildpacks-ci
+  #       - get: new-cves
+  #         passed: [ 'cats' ]
+  #       - get: stack-s3
+  #         passed:
+  #           - cats
+  #       - get: receipt-s3
+  #         passed:
+  #           - cats
+  #       - get: cflinuxfs3
+  #         resource: cflinuxfs3
+  #         passed:
+  #           - cats
+  #       - get: version
+  #         passed:
+  #           - cats
+  #         trigger: true
+  #         params: { bump: final }
+  #     - do:
+  #       - task: update-receipt
+  #         file: buildpacks-ci/tasks/update-rootfs-receipt/task.yml
+  #       - task: update-filename
+  #         file: buildpacks-ci/tasks/update-rootfs-filename/task.yml
+  #       - put: cflinuxfs3
+  #         params:
+  #           repository: new-cflinuxfs3-commit
+  #           tag: version/number
+  #           rebase: true
+  #       - put: stack-s3
+  #         params:
+  #           from: cflinuxfs3-archive/cflinuxfs3-(.*).tar.gz
+  #           to: /rootfs/
+  #       - put: version
+  #         params: { file: version/number }
+  #       on_failure:
+  #         put: failure-alert
+  #         params:
+  #           text: "$BUILD_PIPELINE_NAME $BUILD_JOB_NAME job on Concourse failed! \n Check: $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME"
+  #           channel: {{concourse-job-failure-notifications-slack-channel}}
+  #           username: concourse
+  #           icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
 
-  - name: reset-minor-version-to-rc
-    serial: true
-    public: true
-    plan:
-      - get: version
-        trigger: true
-        passed: [ release-cflinuxfs3 ]
-        params: {bump: minor, pre: rc}
-      - put: version
-        params: {file: version/number}
+  # - name: reset-minor-version-to-rc
+  #   serial: true
+  #   public: true
+  #   plan:
+  #     - get: version
+  #       trigger: true
+  #       passed: [ release-cflinuxfs3 ]
+  #       params: {bump: minor, pre: rc}
+  #     - put: version
+  #       params: {file: version/number}
 
-  - name: finalize-security-notices
-    serial: true
-    public: true
-    plan:
-      - aggregate:
-        - get: buildpacks-ci
-          resource: buildpacks-ci
-        - get: version
-          trigger: true
-          passed: [ upload-to-github ]
-      - do:
-        - task: finalize-security-notices
-          file: buildpacks-ci/tasks/finalize-security-notice-stories/task.yml
-          attempts: 20
-          params:
-            TRACKER_PROJECT_ID: {{cf-buildpacks-public-tracker-id}}
-            TRACKER_REQUESTER_ID: {{cf-buildpacks-requester-id}}
-            TRACKER_API_TOKEN: {{pivotal-tracker-api-token}}
-  - name: upload-to-github
-    serial: true
-    public: true
-    plan:
-      - aggregate:
-        - get: buildpacks-ci
-        - get: previous-cflinuxfs3-release
-          resource: cflinuxfs3-github-release-drafts
-        - get: cflinuxfs3
-          passed: [ release-cflinuxfs3 ]
-        - get: new-cves
-          passed: [ release-cflinuxfs3 ]
-        - get: stack-s3
-          passed: [ release-cflinuxfs3 ]
-        - get: version
-          trigger: true
-          passed: [ release-cflinuxfs3 ]
-      - do:
-        - task: generate-release-notes
-          file: buildpacks-ci/tasks/generate-cflinuxfs3-release-notes/task.yml
-          params:
-            STACK: cflinuxfs3
-        - put: cflinuxfs3-github-release-drafts
-          params:
-            name: version/number
-            tag: version/number
-            body: release-body/body
-            globs:
-              - stack-s3/cflinuxfs3-*.tar.gz
-        - put: new-cves
-          params:
-            repository: new-cves-artifacts
-            rebase: true
-        on_failure:
-          put: failure-alert
-          params:
-            text: "$BUILD_PIPELINE_NAME $BUILD_JOB_NAME job on Concourse failed! \n Check: $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME"
-            channel: {{concourse-job-failure-notifications-slack-channel}}
-            username: concourse
-            icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
+  # - name: finalize-security-notices
+  #   serial: true
+  #   public: true
+  #   plan:
+  #     - aggregate:
+  #       - get: buildpacks-ci
+  #         resource: buildpacks-ci
+  #       - get: version
+  #         trigger: true
+  #         passed: [ upload-to-github ]
+  #     - do:
+  #       - task: finalize-security-notices
+  #         file: buildpacks-ci/tasks/finalize-security-notice-stories/task.yml
+  #         attempts: 20
+  #         params:
+  #           TRACKER_PROJECT_ID: {{cf-buildpacks-public-tracker-id}}
+  #           TRACKER_REQUESTER_ID: {{cf-buildpacks-requester-id}}
+  #           TRACKER_API_TOKEN: {{pivotal-tracker-api-token}}
+  # - name: upload-to-github
+  #   serial: true
+  #   public: true
+  #   plan:
+  #     - aggregate:
+  #       - get: buildpacks-ci
+  #       - get: previous-cflinuxfs3-release
+  #         resource: cflinuxfs3-github-release-drafts
+  #       - get: cflinuxfs3
+  #         passed: [ release-cflinuxfs3 ]
+  #       - get: new-cves
+  #         passed: [ release-cflinuxfs3 ]
+  #       - get: stack-s3
+  #         passed: [ release-cflinuxfs3 ]
+  #       - get: version
+  #         trigger: true
+  #         passed: [ release-cflinuxfs3 ]
+  #     - do:
+  #       - task: generate-release-notes
+  #         file: buildpacks-ci/tasks/generate-cflinuxfs3-release-notes/task.yml
+  #         params:
+  #           STACK: cflinuxfs3
+  #       - put: cflinuxfs3-github-release-drafts
+  #         params:
+  #           name: version/number
+  #           tag: version/number
+  #           body: release-body/body
+  #           globs:
+  #             - stack-s3/cflinuxfs3-*.tar.gz
+  #       - put: new-cves
+  #         params:
+  #           repository: new-cves-artifacts
+  #           rebase: true
+  #       on_failure:
+  #         put: failure-alert
+  #         params:
+  #           text: "$BUILD_PIPELINE_NAME $BUILD_JOB_NAME job on Concourse failed! \n Check: $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME"
+  #           channel: {{concourse-job-failure-notifications-slack-channel}}
+  #           username: concourse
+  #           icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
 
-  - name: upload-to-docker
-    serial: true
-    public: true
-    plan:
-      - aggregate:
-        - get: buildpacks-ci
-        - get: stack-s3
-          passed: [ release-cflinuxfs3 ]
-        - get: version
-          trigger: true
-          passed: [ release-cflinuxfs3 ]
-      - do:
-        - task: rename
-          file: buildpacks-ci/tasks/rename-rootfs-for-docker/task.yml
-        - aggregate:
-          - put: docker latest version
-            resource: docker-cflinuxfs3
-            params:
-              import_file: docker-s3/cflinuxfs3.tar.gz
-              skip_download: true
-          - put: docker tagged version
-            resource: docker-cflinuxfs3-tagged
-            params:
-              skip_download: true
-              import_file: docker-s3/cflinuxfs3.tar.gz
-              tag: version/number
-        on_failure:
-          put: failure-alert
-          params:
-            text: "$BUILD_PIPELINE_NAME $BUILD_JOB_NAME job on Concourse failed! \n Check: $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME"
-            channel: {{concourse-job-failure-notifications-slack-channel}}
-            username: concourse
-            icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
+  # - name: upload-to-docker
+  #   serial: true
+  #   public: true
+  #   plan:
+  #     - aggregate:
+  #       - get: buildpacks-ci
+  #       - get: stack-s3
+  #         passed: [ release-cflinuxfs3 ]
+  #       - get: version
+  #         trigger: true
+  #         passed: [ release-cflinuxfs3 ]
+  #     - do:
+  #       - task: rename
+  #         file: buildpacks-ci/tasks/rename-rootfs-for-docker/task.yml
+  #       - aggregate:
+  #         - put: docker latest version
+  #           resource: docker-cflinuxfs3
+  #           params:
+  #             import_file: docker-s3/cflinuxfs3.tar.gz
+  #             skip_download: true
+  #         - put: docker tagged version
+  #           resource: docker-cflinuxfs3-tagged
+  #           params:
+  #             skip_download: true
+  #             import_file: docker-s3/cflinuxfs3.tar.gz
+  #             tag: version/number
+  #       on_failure:
+  #         put: failure-alert
+  #         params:
+  #           text: "$BUILD_PIPELINE_NAME $BUILD_JOB_NAME job on Concourse failed! \n Check: $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME"
+  #           channel: {{concourse-job-failure-notifications-slack-channel}}
+  #           username: concourse
+  #           icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
 
-  - name: create-cflinuxfs3-release
-    serial: true
-    public: true
-    plan:
-      - aggregate:
-        - get: buildpacks-ci
-        - get: blob
-          resource: stack-s3
-          passed: [ release-cflinuxfs3 ]
-          trigger: true
-        - get: version
-          passed: [ release-cflinuxfs3 ]
-        - get: release
-          resource: cflinuxfs3-release
-      - do:
-        - task: create-cflinuxfs3-release
-          file: buildpacks-ci/tasks/create-cflinuxfs3-release/task.yml
-          params:
-            BLOB_NAME: rootfs
-            BLOB_GLOB: blob/cflinuxfs3-*.tar.gz
-            RELEASE_NAME: cflinuxfs3
-            ACCESS_KEY_ID: {{cloudfoundry-s3-access-key}}
-            SECRET_ACCESS_KEY: {{cloudfoundry-s3-secret-key}}
-        - task: create-release-body
-          file: buildpacks-ci/tasks/create-rootfs-bosh-release-github-release-notes/task.yml
-          params:
-            ROOTFS_TYPE: cflinuxfs3
-        - task: create-release-commit
-          file: buildpacks-ci/tasks/create-rootfs-bosh-release-commit/task.yml
-        - put: cflinuxfs3-release
-          params:
-            repository: release-artifacts
-        - put: cflinuxfs3-release-github-release
-          params:
-            name: version/number
-            tag: version/number
-            tag_prefix: 'v'
-            commitish: release-commit/sha
-            body: release-body/body
-            globs:
-              - release-artifacts/releases/cflinuxfs3/*.tgz
-        on_failure:
-          put: failure-alert
-          params:
-            text: "$BUILD_PIPELINE_NAME $BUILD_JOB_NAME job on Concourse failed! \n Check: $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME"
-            channel: {{concourse-job-failure-notifications-slack-channel}}
-            username: concourse
-            icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
+  # - name: create-cflinuxfs3-release
+  #   serial: true
+  #   public: true
+  #   plan:
+  #     - aggregate:
+  #       - get: buildpacks-ci
+  #       - get: blob
+  #         resource: stack-s3
+  #         passed: [ release-cflinuxfs3 ]
+  #         trigger: true
+  #       - get: version
+  #         passed: [ release-cflinuxfs3 ]
+  #       - get: release
+  #         resource: cflinuxfs3-release
+  #     - do:
+  #       - task: create-cflinuxfs3-release
+  #         file: buildpacks-ci/tasks/create-cflinuxfs3-release/task.yml
+  #         params:
+  #           BLOB_NAME: rootfs
+  #           BLOB_GLOB: blob/cflinuxfs3-*.tar.gz
+  #           RELEASE_NAME: cflinuxfs3
+  #           ACCESS_KEY_ID: {{cloudfoundry-s3-access-key}}
+  #           SECRET_ACCESS_KEY: {{cloudfoundry-s3-secret-key}}
+  #       - task: create-release-body
+  #         file: buildpacks-ci/tasks/create-rootfs-bosh-release-github-release-notes/task.yml
+  #         params:
+  #           ROOTFS_TYPE: cflinuxfs3
+  #       - task: create-release-commit
+  #         file: buildpacks-ci/tasks/create-rootfs-bosh-release-commit/task.yml
+  #       - put: cflinuxfs3-release
+  #         params:
+  #           repository: release-artifacts
+  #       - put: cflinuxfs3-release-github-release
+  #         params:
+  #           name: version/number
+  #           tag: version/number
+  #           tag_prefix: 'v'
+  #           commitish: release-commit/sha
+  #           body: release-body/body
+  #           globs:
+  #             - release-artifacts/releases/cflinuxfs3/*.tgz
+  #       on_failure:
+  #         put: failure-alert
+  #         params:
+  #           text: "$BUILD_PIPELINE_NAME $BUILD_JOB_NAME job on Concourse failed! \n Check: $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME"
+  #           channel: {{concourse-job-failure-notifications-slack-channel}}
+  #           username: concourse
+  #           icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
