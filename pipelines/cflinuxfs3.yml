@@ -173,21 +173,21 @@ resources: #####################################################################
 
   ## Docker Image ##
 
-  - name: docker-cflinuxfs3
-    type: docker-image
-    source:
-      repository: cloudfoundry/cflinuxfs3
-      username: {{dockerhub-cflinuxfs2-username}}
-      password: {{dockerhub-cflinuxfs2-password}}
-      email: cf-buildpacks-eng@pivotal.io
+  # - name: docker-cflinuxfs3
+  #   type: docker-image
+  #   source:
+  #     repository: cloudfoundry/cflinuxfs3
+  #     username: {{dockerhub-cflinuxfs2-username}}
+  #     password: {{dockerhub-cflinuxfs2-password}}
+  #     email: cf-buildpacks-eng@pivotal.io
 
-  - name: docker-cflinuxfs3-tagged
-    type: docker-image
-    source:
-      repository: cloudfoundry/cflinuxfs3
-      username: {{dockerhub-cflinuxfs2-username}}
-      password: {{dockerhub-cflinuxfs2-password}}
-      email: cf-buildpacks-eng@pivotal.io
+  # - name: docker-cflinuxfs3-tagged
+  #   type: docker-image
+  #   source:
+  #     repository: cloudfoundry/cflinuxfs3
+  #     username: {{dockerhub-cflinuxfs2-username}}
+  #     password: {{dockerhub-cflinuxfs2-password}}
+  #     email: cf-buildpacks-eng@pivotal.io
 
   ## Github Release ##
 
@@ -199,13 +199,13 @@ resources: #####################################################################
       repository: cflinuxfs3
       access_token: {{buildpacks-github-token}}
 
-  - name: cflinuxfs3-release-github-release
-    type: github-release
-    source:
-      drafts: false
-      user: {{buildpacks-github-org}}
-      repository: cflinuxfs3-release
-      access_token: {{buildpacks-github-token}}
+  # - name: cflinuxfs3-release-github-release
+  #   type: github-release
+  #   source:
+  #     drafts: false
+  #     user: {{buildpacks-github-org}}
+  #     repository: cflinuxfs3-release
+  #     access_token: {{buildpacks-github-token}}
 
   ## Semver Versions ##
 
@@ -321,8 +321,6 @@ jobs: ##########################################################################
           BBL_GCP_ZONE: us-east1-c
           BBL_GCP_REGION: us-east1
           BBL_IAAS: gcp
-          BBL_LB_CERT: {{cflinuxfs3-lb-cert}}
-          BBL_LB_KEY: {{cflinuxfs3-lb-key}}
           LB_DOMAIN: cflinuxfs3.buildpacks-gcp.ci.cf-app.com
           BBL_ENV_NAME: cflinuxfs3
           BBL_STATE_DIR: cflinuxfs3
