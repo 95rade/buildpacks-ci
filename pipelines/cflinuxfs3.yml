@@ -146,10 +146,10 @@ resources: #####################################################################
           file_name: vars-store.yml
           json_key: {{cflinuxfs2-cf-deployment-gcs-service-account-key}}
 
-  - name: cflinuxfs3-rootfs-smoke-test-deployment
-    type: bosh-deployment
-    source:
-      deployment: rootfs-smoke-test
+  # - name: cflinuxfs3-rootfs-smoke-test-deployment
+  #   type: bosh-deployment
+  #   source:
+  #     deployment: rootfs-smoke-test
 
 
   ## bosh.io Releases ##
@@ -382,18 +382,18 @@ jobs: ##########################################################################
             file: buildpacks-ci/tasks/overwrite-cflinuxfs3-release/task.yml
             params:
               ROOTFS_RELEASE: cflinuxfs3
-        - put: cflinuxfs3-rootfs-smoke-test-deployment
-          params:
-            source_file: deployment-source-config/source_file.yml
-            manifest: cflinuxfs3-release-artifacts/manifests/manifest.yml
-            releases:
-              - cflinuxfs3-release-artifacts/dev_releases/cflinuxfs3/*.tgz
-            stemcells:
-              - gcp-stemcell/*.tgz
-        - task: run-rootfs-smoke-test
-          file: buildpacks-ci/tasks/run-rootfs-smoke-test-cflinuxfs3/task.yml
-          params:
-            ENV_NAME: cflinuxfs3
+        # - put: cflinuxfs3-rootfs-smoke-test-deployment
+        #   params:
+        #     source_file: deployment-source-config/source_file.yml
+        #     manifest: cflinuxfs3-release-artifacts/manifests/manifest.yml
+        #     releases:
+        #       - cflinuxfs3-release-artifacts/dev_releases/cflinuxfs3/*.tgz
+        #     stemcells:
+        #       - gcp-stemcell/*.tgz
+        # - task: run-rootfs-smoke-test
+        #   file: buildpacks-ci/tasks/run-rootfs-smoke-test-cflinuxfs3/task.yml
+        #   params:
+        #     ENV_NAME: cflinuxfs3
         - put: cflinuxfs3-cf-deployment
           params:
             source_file: deployment-source-config/source_file.yml
