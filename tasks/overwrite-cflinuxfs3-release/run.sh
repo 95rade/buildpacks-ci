@@ -27,7 +27,7 @@ popd
 cat <<EOF > ${release_dir}/use-dev-release-opsfile.yml
 ---
 - type: replace
-  path: /releases/-
+  path: /releases/name=cflinuxfs3?
   value:
     name: cflinuxfs3
     version: ${version}
