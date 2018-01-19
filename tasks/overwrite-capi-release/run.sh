@@ -4,7 +4,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-echo "Overwriting BOSH release $ROOTFS_RELEASE"
+echo "Overwriting BOSH release capi"
 
 version="212.0.$(date +"%s")"
 
