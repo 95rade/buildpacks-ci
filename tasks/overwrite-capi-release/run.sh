@@ -7,6 +7,7 @@ set -o pipefail
 echo "Overwriting BOSH release capi"
 
 version="212.0.$(date +"%s")"
+gem install bundler -v 1.15.4
 
 rsync -a capi-release/ capi-release-artifacts/
 
