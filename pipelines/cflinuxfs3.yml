@@ -96,6 +96,12 @@ resources: #####################################################################
       branch: master
       private_key: {{cflinuxfs3-release-private-key}}
 
+  - name: capi-release
+    type: git
+    source:
+      uri: https://github.com/dgodd/capi-release
+      branch: develop
+
   - name: diego-release
     type: git
     source:
@@ -367,6 +373,7 @@ jobs: ##########################################################################
             resource: cf-deployment-rc
             attempts: 3
           - get: diego-release
+          - get: capi-release
           - get: garden-runc-bosh-release
             attempts: 3
           - get: diego-bosh-release
@@ -382,6 +389,8 @@ jobs: ##########################################################################
             file: buildpacks-ci/tasks/overwrite-cflinuxfs3-release/task.yml
             params:
               ROOTFS_RELEASE: cflinuxfs3
+          - task: overwrite-capi-release
+            file: buildpacks-ci/tasks/overwrite-capi-release/task.yml
         # - put: cflinuxfs3-rootfs-smoke-test-deployment
         #   params:
         #     source_file: deployment-source-config/source_file.yml
@@ -400,12 +409,15 @@ jobs: ##########################################################################
             manifest: cf-deployment/cf-deployment.yml
             releases:
               - cflinuxfs3-release-artifacts/dev_releases/cflinuxfs3/*.tgz
+              - capi-release-artifacts/dev_releases/capi/*.tgz
             stemcells:
               - gcp-stemcell/*.tgz
             ops_files:
               - cf-deployment/operations/use-compiled-releases.yml
               - buildpacks-ci/deployments/operations/no-canaries.yml
+              - buildpacks-ci/deployments/operations/cflinuxfs3.yml
               - cflinuxfs3-release-artifacts/use-dev-release-opsfile.yml
+              - capi-release-artifacts/use-dev-release-opsfile.yml
               - cf-deployment/operations/experimental/use-bosh-dns.yml
               - cf-deployment/operations/experimental/use-bosh-dns-for-containers.yml
             vars:
