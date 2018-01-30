@@ -22,7 +22,12 @@ module Depwatcher
     end
 
     def self.check(name : String) : Array(Internal)
-      response = HTTP::Client.get "https://rubygems.org/api/v1/versions/#{name}.json"
+      #ctx = OpenSSL::SSL::Context::Client.new()
+      #ctx.ca_certificates_path = "/etc/ssl/certs"
+      #client = HTTP::Client.new("rubygems.org", 443, ctx)
+      #response = client.get "/api/v1/versions/#{name}.json"
+
+      response = Depwatcher.client("rubygems.org").get "/api/v1/versions/#{name}.json"
       raise "Could not download data from rubygems: code #{response.status_code}" unless response.status_code == 200
       Array(External).from_json(response.body).reject do |r|
         r.prerelease
