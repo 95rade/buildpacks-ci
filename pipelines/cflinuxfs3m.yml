@@ -179,21 +179,21 @@ resources: #####################################################################
 
   ## Docker Image ##
 
-  # - name: docker-cflinuxfs3m
-  #   type: docker-image
-  #   source:
-  #     repository: cloudfoundry/cflinuxfs3m
-  #     username: {{dockerhub-cflinuxfs2-username}}
-  #     password: {{dockerhub-cflinuxfs2-password}}
-  #     email: cf-buildpacks-eng@pivotal.io
+  - name: docker-cflinuxfs3m
+    type: docker-image
+    source:
+      repository: cloudfoundry/cflinuxfs3m
+      username: {{dockerhub-cflinuxfs2-username}}
+      password: {{dockerhub-cflinuxfs2-password}}
+      email: cf-buildpacks-eng@pivotal.io
 
-  # - name: docker-cflinuxfs3m-tagged
-  #   type: docker-image
-  #   source:
-  #     repository: cloudfoundry/cflinuxfs3m
-  #     username: {{dockerhub-cflinuxfs2-username}}
-  #     password: {{dockerhub-cflinuxfs2-password}}
-  #     email: cf-buildpacks-eng@pivotal.io
+  - name: docker-cflinuxfs3m-tagged
+    type: docker-image
+    source:
+      repository: cloudfoundry/cflinuxfs3m
+      username: {{dockerhub-cflinuxfs2-username}}
+      password: {{dockerhub-cflinuxfs2-password}}
+      email: cf-buildpacks-eng@pivotal.io
 
   ## Github Release ##
 
@@ -660,7 +660,7 @@ jobs: ##########################################################################
           passed: [ release-cflinuxfs3m ]
       - do:
         - task: rename
-          file: buildpacks-ci/tasks/rename-rootfs-for-docker/task.yml
+          file: buildpacks-ci/tasks/rootfs/rename-for-docker/task.yml
           params:
             STACK: cflinuxfs3m
         - aggregate:
