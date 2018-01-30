@@ -197,13 +197,13 @@ resources: #####################################################################
 
   ## Github Release ##
 
-  - name: cflinuxfs3m-github-release-drafts
-    type: github-release
-    source:
-      drafts: true
-      user: {{buildpacks-github-org}}
-      repository: cflinuxfs3m
-      access_token: {{buildpacks-github-token}}
+  # - name: cflinuxfs3m-github-release-drafts
+  #   type: github-release
+  #   source:
+  #     drafts: true
+  #     user: {{buildpacks-github-org}}
+  #     repository: cflinuxfs3m
+  #     access_token: {{buildpacks-github-token}}
 
   # - name: cflinuxfs3m-release-github-release
   #   type: github-release
@@ -253,8 +253,8 @@ jobs: ##########################################################################
     public: true
     plan:
       - aggregate:
-        - get: previous-cflinuxfs3m-release
-          resource: cflinuxfs3m-github-release-drafts
+        # - get: previous-cflinuxfs3m-release
+        #   resource: cflinuxfs3m-github-release-drafts
         - get: buildpacks-ci
         - get: new-cves
           trigger: true

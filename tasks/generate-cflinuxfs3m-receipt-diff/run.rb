@@ -6,7 +6,7 @@ require_relative '../../lib/release-notes-creator'
 require_relative '../../lib/git-client'
 
 
-previous_version = File.read('previous-cflinuxfs3m-release/version').strip
+previous_version = '0.0.0' # File.read('previous-cflinuxfs3m-release/version').strip
 
 if ENV.fetch('STACK') == 'cflinuxfs3m'
   old_receipt_uri = "https://raw.githubusercontent.com/cloudfoundry/cflinuxfs3m/#{previous_version}/cflinuxfs3m/cflinuxfs3m_receipt"
