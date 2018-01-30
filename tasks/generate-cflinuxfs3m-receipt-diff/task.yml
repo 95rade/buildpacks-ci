@@ -6,7 +6,7 @@ image_resource:
     repository: cfbuildpacks/ci
 inputs:
   - name: buildpacks-ci
-  # - name: previous-cflinuxfs3m-release
+  - name: previous-cflinuxfs3m-release
   - name: receipt-artifacts
   - name: public-robots
 outputs:
