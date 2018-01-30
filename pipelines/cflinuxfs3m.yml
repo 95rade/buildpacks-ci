@@ -526,53 +526,57 @@ jobs: ##########################################################################
             repository: updated-bbl-state
             rebase: true
 
-  # - name: release-cflinuxfs3m
-  #   serial: true
-  #   serial_groups: [ cflinuxfs3m ]
-  #   public: true
-  #   plan:
-  #     - aggregate:
-  #       - get: buildpacks-ci
-  #       - get: new-cves
-  #         passed: [ 'cats' ]
-  #       - get: stack-s3
-  #         passed:
-  #           - cats
-  #       - get: receipt-s3
-  #         passed:
-  #           - cats
-  #       - get: cflinuxfs3m
-  #         resource: cflinuxfs3m
-  #         passed:
-  #           - cats
-  #       - get: version
-  #         passed:
-  #           - cats
-  #         trigger: true
-  #         params: { bump: final }
-  #     - do:
-  #       - task: update-receipt
-  #         file: buildpacks-ci/tasks/update-rootfs-receipt/task.yml
-  #       - task: update-filename
-  #         file: buildpacks-ci/tasks/update-rootfs-filename/task.yml
-  #       - put: cflinuxfs3m
-  #         params:
-  #           repository: new-cflinuxfs3m-commit
-  #           tag: version/number
-  #           rebase: true
-  #       - put: stack-s3
-  #         params:
-  #           from: cflinuxfs3m-archive/cflinuxfs3m-(.*).tar.gz
-  #           to: /rootfs/
-  #       - put: version
-  #         params: { file: version/number }
-  #       on_failure:
-  #         put: failure-alert
-  #         params:
-  #           text: "$BUILD_PIPELINE_NAME $BUILD_JOB_NAME job on Concourse failed! \n Check: $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME"
-  #           channel: {{concourse-job-failure-notifications-slack-channel}}
-  #           username: concourse
-  #           icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
+  - name: release-cflinuxfs3m
+    serial: true
+    serial_groups: [ cflinuxfs3m ]
+    public: true
+    plan:
+      - aggregate:
+        - get: buildpacks-ci
+        - get: new-cves
+          passed: [ 'cats' ]
+        - get: stack-s3
+          passed:
+            - cats
+        - get: receipt-s3
+          passed:
+            - cats
+        - get: cflinuxfs3m
+          resource: cflinuxfs3m
+          passed:
+            - cats
+        - get: version
+          passed:
+            - cats
+          trigger: true
+          params: { bump: final }
+      - do:
+        - task: update-receipt
+          file: buildpacks-ci/tasks/rootfs/update-receipt/task.yml
+          params:
+            ROOTFS: cflinuxfs3m
+        - task: update-filename
+          file: buildpacks-ci/tasks/rootfs/update-filename/task.yml
+          params:
+            ROOTFS: cflinuxfs3m
+        - put: cflinuxfs3m
+          params:
+            repository: new-cflinuxfs3m-commit
+            tag: version/number
+            rebase: true
+        - put: stack-s3
+          params:
+            from: rootfs-archive/cflinuxfs3m-(.*).tar.gz
+            to: /rootfs/
+        - put: version
+          params: { file: version/number }
+        on_failure:
+          put: failure-alert
+          params:
+            text: "$BUILD_PIPELINE_NAME $BUILD_JOB_NAME job on Concourse failed! \n Check: $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME"
+            channel: {{concourse-job-failure-notifications-slack-channel}}
+            username: concourse
+            icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
 
   # - name: reset-minor-version-to-rc
   #   serial: true
