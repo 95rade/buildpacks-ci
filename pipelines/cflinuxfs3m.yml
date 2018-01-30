@@ -536,23 +536,20 @@ jobs: ##########################################################################
         - get: new-cves
           passed: [ 'cats' ]
         - get: stack-s3
-          passed:
-            - cats
+          passed: [ 'cats' ]
         - get: receipt-s3
-          passed:
-            - cats
+          passed: [ 'cats' ]
         - get: cflinuxfs3m
           resource: cflinuxfs3m
-          passed:
-            - cats
+          passed: [ 'cats' ]
         - get: version
-          passed:
-            - cats
+          passed: [ 'cats' ]
           trigger: true
           params: { bump: final }
       - do:
         - task: update-receipt
           file: buildpacks-ci/tasks/rootfs/update-receipt/task.yml
+          input_mapping: { rootfs: cflinuxfs3m }
           params:
             ROOTFS: cflinuxfs3m
         - task: update-filename
@@ -561,7 +558,7 @@ jobs: ##########################################################################
             ROOTFS: cflinuxfs3m
         - put: cflinuxfs3m
           params:
-            repository: new-cflinuxfs3m-commit
+            repository: new-rootfs-commit
             tag: version/number
             rebase: true
         - put: stack-s3
