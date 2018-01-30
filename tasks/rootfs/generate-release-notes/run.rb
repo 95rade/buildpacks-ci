@@ -10,9 +10,9 @@ previous_version = '0.0.1' # File.read('previous-rootfs-release/version').strip
 new_version = File.read('version/number').strip
 stack = ENV.fetch('STACK')
 ubuntu_version = {
-  'cflinuxfs2': '14.04',
-  'cflinuxfs3': '18.04',
-  'cflinuxfs3m': '18.04'
+  'cflinuxfs2' => '14.04',
+  'cflinuxfs3' => '18.04',
+  'cflinuxfs3m' => '18.04'
 }.fetch(stack) or raise "Unsupported stack: #{stack}"
 
 old_receipt_uri = "https://raw.githubusercontent.com/cloudfoundry/#{stack}/#{previous_version}/#{stack}/#{stack}_receipt"
