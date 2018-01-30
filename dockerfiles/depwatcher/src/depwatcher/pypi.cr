@@ -44,7 +44,7 @@ module Depwatcher
     # private
 
     def self.releases(name : String) : Hash(String, Array(Release))
-      response = HTTP::Client.get "https://pypi.python.org/pypi/#{name}/json"
+      response = Depwatcher.ssl_get "https://pypi.python.org/pypi/#{name}/json"
       raise "Could not download data from pypi: code #{response.status_code}" unless response.status_code == 200
       External.from_json(response.body).releases
     end

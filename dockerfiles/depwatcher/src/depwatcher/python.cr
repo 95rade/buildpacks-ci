@@ -22,7 +22,7 @@ module Depwatcher
     end
 
     def self.check() : Array(Internal)
-      response = HTTP::Client.get "https://www.python.org/downloads/"
+      response = Depwatcher.ssl_get "https://www.python.org/downloads/"
       doc = XML.parse_html(response.body)
       lis = doc.xpath("//*[contains(@class,'release-number')]/a")
       raise "Could not parse python website" unless lis.is_a?(XML::NodeSet)
@@ -33,7 +33,7 @@ module Depwatcher
     end
 
     def self.in(ref : String) : Release
-      response = HTTP::Client.get "https://www.python.org/downloads/release/python-#{ref.gsub(/\D/,"")}/"
+      response = Depwatcher.ssl_get "https://www.python.org/downloads/release/python-#{ref.gsub(/\D/,"")}/"
       doc = XML.parse_html(response.body)
       a = doc.xpath("//a[contains(text(),'Gzipped source tarball')]")
       raise "Could not parse python release (a) website" unless a.is_a?(XML::NodeSet)

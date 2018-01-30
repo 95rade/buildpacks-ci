@@ -30,7 +30,7 @@ module Depwatcher
     end
 
     def self.releases() : Array(Release)
-      response = HTTP::Client.get "https://www.ruby-lang.org/en/downloads/"
+      response = Depwatcher.ssl_get "https://www.ruby-lang.org/en/downloads/"
       doc = XML.parse_html(response.body)
       lis = doc.xpath("//li/a[starts-with(text(),'Ruby ')]")
       raise "Could not parse ruby website" unless lis.is_a?(XML::NodeSet)
