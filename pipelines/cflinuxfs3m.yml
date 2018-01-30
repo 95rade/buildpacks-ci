@@ -647,39 +647,41 @@ jobs: ##########################################################################
             username: concourse
             icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
 
-  # - name: upload-to-docker
-  #   serial: true
-  #   public: true
-  #   plan:
-  #     - aggregate:
-  #       - get: buildpacks-ci
-  #       - get: stack-s3
-  #         passed: [ release-cflinuxfs3m ]
-  #       - get: version
-  #         trigger: true
-  #         passed: [ release-cflinuxfs3m ]
-  #     - do:
-  #       - task: rename
-  #         file: buildpacks-ci/tasks/rename-rootfs-for-docker/task.yml
-  #       - aggregate:
-  #         - put: docker latest version
-  #           resource: docker-cflinuxfs3m
-  #           params:
-  #             import_file: docker-s3/cflinuxfs3m.tar.gz
-  #             skip_download: true
-  #         - put: docker tagged version
-  #           resource: docker-cflinuxfs3m-tagged
-  #           params:
-  #             skip_download: true
-  #             import_file: docker-s3/cflinuxfs3m.tar.gz
-  #             tag: version/number
-  #       on_failure:
-  #         put: failure-alert
-  #         params:
-  #           text: "$BUILD_PIPELINE_NAME $BUILD_JOB_NAME job on Concourse failed! \n Check: $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME"
-  #           channel: {{concourse-job-failure-notifications-slack-channel}}
-  #           username: concourse
-  #           icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
+  - name: upload-to-docker
+    serial: true
+    public: true
+    plan:
+      - aggregate:
+        - get: buildpacks-ci
+        - get: stack-s3
+          passed: [ release-cflinuxfs3m ]
+        - get: version
+          trigger: true
+          passed: [ release-cflinuxfs3m ]
+      - do:
+        - task: rename
+          file: buildpacks-ci/tasks/rename-rootfs-for-docker/task.yml
+          params:
+            STACK: cflinuxfs3m
+        - aggregate:
+          - put: docker latest version
+            resource: docker-cflinuxfs3m
+            params:
+              import_file: docker-s3/cflinuxfs3m.tar.gz
+              skip_download: true
+          - put: docker tagged version
+            resource: docker-cflinuxfs3m-tagged
+            params:
+              skip_download: true
+              import_file: docker-s3/cflinuxfs3m.tar.gz
+              tag: version/number
+        on_failure:
+          put: failure-alert
+          params:
+            text: "$BUILD_PIPELINE_NAME $BUILD_JOB_NAME job on Concourse failed! \n Check: $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME"
+            channel: {{concourse-job-failure-notifications-slack-channel}}
+            username: concourse
+            icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
 
   # - name: create-cflinuxfs3m-release
   #   serial: true
