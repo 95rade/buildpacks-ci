@@ -19,6 +19,8 @@ old_receipt_uri = "https://raw.githubusercontent.com/cloudfoundry/#{stack}/#{pre
 cve_yaml_file = "new-cves/new-cve-notifications/ubuntu#{ubuntu_version}.yml"
 cves_dir = 'new-cve-notifications'
 
+puts old_receipt_uri
+
 new_receipt_file = "rootfs/#{stack}/#{stack}_receipt"
 old_receipt = Tempfile.new('old-receipt')
 File.write(old_receipt.path, open(old_receipt_uri).read)
