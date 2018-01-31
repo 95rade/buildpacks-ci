@@ -611,8 +611,8 @@ jobs: ##########################################################################
     plan:
       - aggregate:
         - get: buildpacks-ci
-        # - get: previous-cflinuxfs3m-release
-        #   resource: cflinuxfs3m-github-release-drafts
+        - get: previous-cflinuxfs3m-release
+          resource: cflinuxfs3m-github-release-drafts
         - get: cflinuxfs3m
           passed: [ release-cflinuxfs3m ]
         - get: new-cves

@@ -5,6 +5,7 @@ image_resource:
   source:
     repository: cfbuildpacks/ci
 inputs:
+  - name: previous-rootfs-release
   - name: buildpacks-ci
   - name: version
   - name: new-cves

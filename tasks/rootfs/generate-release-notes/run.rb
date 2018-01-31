@@ -6,7 +6,7 @@ require_relative '../../../lib/release-notes-creator'
 require_relative '../../../lib/git-client'
 
 
-previous_version = '0.0.1' # File.read('previous-rootfs-release/version').strip
+previous_version = File.read('previous-rootfs-release/version').strip
 new_version = File.read('version/number').strip
 stack = ENV.fetch('STACK')
 ubuntu_version = {
@@ -15,13 +15,13 @@ ubuntu_version = {
   'cflinuxfs3m' => '18.04'
 }.fetch(stack) or raise "Unsupported stack: #{stack}"
 
-# old_receipt_uri = "https://raw.githubusercontent.com/cloudfoundry/#{stack}/#{previous_version}/#{stack}/#{stack}_receipt"
+old_receipt_uri = "https://raw.githubusercontent.com/cloudfoundry/#{stack}/#{previous_version}/#{stack}/#{stack}_receipt"
 cve_yaml_file = "new-cves/new-cve-notifications/ubuntu#{ubuntu_version}.yml"
 cves_dir = 'new-cve-notifications'
 
 new_receipt_file = "rootfs/#{stack}/#{stack}_receipt"
 old_receipt = Tempfile.new('old-receipt')
-File.write(old_receipt.path, '') #  open(old_receipt_uri).read)
+File.write(old_receipt.path, open(old_receipt_uri).read)
 
 body_file = 'release-body/body'
 notes = ReleaseNotesCreator.new(cve_yaml_file, old_receipt.path, new_receipt_file).release_notes
