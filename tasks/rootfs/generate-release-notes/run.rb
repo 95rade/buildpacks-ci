@@ -15,15 +15,13 @@ ubuntu_version = {
   'cflinuxfs3m' => '18.04'
 }.fetch(stack) or raise "Unsupported stack: #{stack}"
 
-old_receipt_uri = "https://raw.githubusercontent.com/cloudfoundry/#{stack}/#{previous_version}/#{stack}/#{stack}_receipt"
+# old_receipt_uri = "https://raw.githubusercontent.com/cloudfoundry/#{stack}/#{previous_version}/#{stack}/#{stack}_receipt"
 cve_yaml_file = "new-cves/new-cve-notifications/ubuntu#{ubuntu_version}.yml"
 cves_dir = 'new-cve-notifications'
 
-puts old_receipt_uri
-
 new_receipt_file = "rootfs/#{stack}/#{stack}_receipt"
 old_receipt = Tempfile.new('old-receipt')
-File.write(old_receipt.path, open(old_receipt_uri).read)
+File.write(old_receipt.path, '') #  open(old_receipt_uri).read)
 
 body_file = 'release-body/body'
 notes = ReleaseNotesCreator.new(cve_yaml_file, old_receipt.path, new_receipt_file).release_notes
