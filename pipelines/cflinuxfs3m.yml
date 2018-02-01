@@ -683,51 +683,52 @@ jobs: ##########################################################################
             username: concourse
             icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
 
-  # - name: create-cflinuxfs3m-release
-  #   serial: true
-  #   public: true
-  #   plan:
-  #     - aggregate:
-  #       - get: buildpacks-ci
-  #       - get: blob
-  #         resource: stack-s3
-  #         passed: [ release-cflinuxfs3m ]
-  #         trigger: true
-  #       - get: version
-  #         passed: [ release-cflinuxfs3m ]
-  #       - get: release
-  #         resource: cflinuxfs3m-release
-  #     - do:
-  #       - task: create-cflinuxfs3m-release
-  #         file: buildpacks-ci/tasks/create-cflinuxfs3m-release/task.yml
-  #         params:
-  #           BLOB_NAME: rootfs
-  #           BLOB_GLOB: blob/cflinuxfs3m-*.tar.gz
-  #           RELEASE_NAME: cflinuxfs3m
-  #           ACCESS_KEY_ID: {{cloudfoundry-s3-access-key}}
-  #           SECRET_ACCESS_KEY: {{cloudfoundry-s3-secret-key}}
-  #       - task: create-release-body
-  #         file: buildpacks-ci/tasks/create-rootfs-bosh-release-github-release-notes/task.yml
-  #         params:
-  #           ROOTFS_TYPE: cflinuxfs3m
-  #       - task: create-release-commit
-  #         file: buildpacks-ci/tasks/create-rootfs-bosh-release-commit/task.yml
-  #       - put: cflinuxfs3m-release
-  #         params:
-  #           repository: release-artifacts
-  #       - put: cflinuxfs3m-release-github-release
-  #         params:
-  #           name: version/number
-  #           tag: version/number
-  #           tag_prefix: 'v'
-  #           commitish: release-commit/sha
-  #           body: release-body/body
-  #           globs:
-  #             - release-artifacts/releases/cflinuxfs3m/*.tgz
-  #       on_failure:
-  #         put: failure-alert
-  #         params:
-  #           text: "$BUILD_PIPELINE_NAME $BUILD_JOB_NAME job on Concourse failed! \n Check: $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME"
-  #           channel: {{concourse-job-failure-notifications-slack-channel}}
-  #           username: concourse
-  #           icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
+  - name: create-cflinuxfs3m-release
+    serial: true
+    public: true
+    plan:
+      - aggregate:
+        - get: buildpacks-ci
+        - get: blob
+          resource: stack-s3
+          passed: [ release-cflinuxfs3m ]
+          trigger: true
+        - get: version
+          passed: [ release-cflinuxfs3m ]
+        - get: release
+          resource: cflinuxfs3m-release
+      - do:
+        - task: create-cflinuxfs3m-release
+          file: buildpacks-ci/tasks/create-cflinuxfs3m-release/task.yml
+          params:
+            STACK: cflinuxfs3m
+            BLOB_NAME: rootfs
+            BLOB_GLOB: blob/cflinuxfs3m-*.tar.gz
+            RELEASE_NAME: cflinuxfs3m
+            ACCESS_KEY_ID: {{cloudfoundry-s3-access-key}}
+            SECRET_ACCESS_KEY: {{cloudfoundry-s3-secret-key}}
+        - task: create-release-body
+          file: buildpacks-ci/tasks/rootfs/create-bosh-release-github-release-notes/task.yml
+          params:
+            STACK: cflinuxfs3m
+        - task: create-release-commit
+          file: buildpacks-ci/tasks/rootfs/create-bosh-release-commit/task.yml
+        - put: cflinuxfs3m-release
+          params:
+            repository: release-artifacts
+        - put: cflinuxfs3m-release-github-release
+          params:
+            name: version/number
+            tag: version/number
+            tag_prefix: 'v'
+            commitish: release-commit/sha
+            body: release-body/body
+            globs:
+              - release-artifacts/releases/cflinuxfs3m/*.tgz
+        on_failure:
+          put: failure-alert
+          params:
+            text: "$BUILD_PIPELINE_NAME $BUILD_JOB_NAME job on Concourse failed! \n Check: $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME"
+            channel: {{concourse-job-failure-notifications-slack-channel}}
+            username: concourse
+            icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
