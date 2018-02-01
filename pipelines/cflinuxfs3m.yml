@@ -205,13 +205,13 @@ resources: #####################################################################
       repository: cflinuxfs3m
       access_token: {{buildpacks-github-token}}
 
-  # - name: cflinuxfs3m-release-github-release
-  #   type: github-release
-  #   source:
-  #     drafts: false
-  #     user: {{buildpacks-github-org}}
-  #     repository: cflinuxfs3m-release
-  #     access_token: {{buildpacks-github-token}}
+  - name: cflinuxfs3m-release-github-release
+    type: github-release
+    source:
+      drafts: false
+      user: {{buildpacks-github-org}}
+      repository: cflinuxfs3m-release
+      access_token: {{buildpacks-github-token}}
 
   ## Semver Versions ##
 
@@ -699,7 +699,7 @@ jobs: ##########################################################################
           resource: cflinuxfs3m-release
       - do:
         - task: create-cflinuxfs3m-release
-          file: buildpacks-ci/tasks/create-cflinuxfs3m-release/task.yml
+          file: buildpacks-ci/tasks/rootfs/create-release/task.yml
           params:
             STACK: cflinuxfs3m
             BLOB_NAME: rootfs
