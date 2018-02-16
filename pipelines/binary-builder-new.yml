@@ -36,6 +36,7 @@ resources:
   type: depwatcher
   source:
     type: rubygems_cli
+    name: rubygems_cli
 - name: source-ruby
   type: depwatcher
   source:
