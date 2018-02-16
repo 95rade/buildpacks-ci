@@ -29,7 +29,7 @@ resources: #####################################################################
     source:
       branch: master
       uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
-      tag_filter: v4.*
+      tag_filter: v5.*
   - name: bbl-state
     type: git
     source:
@@ -39,19 +39,21 @@ resources: #####################################################################
   - name: bosh-deployment
     type: git
     source:
-      uri: https://github.com/TisVictress/bosh-deployment
-      branch: bosh-lite-safe
-  - name: cf-deployment-rc
+      uri: https://github.com/cloudfoundry/bosh-deployment.git
+      branch: master
+      # uri: https://github.com/TisVictress/bosh-deployment
+      # branch: bosh-lite-safe
+  - name: cf-deployment
     type: git
     source:
       uri: https://github.com/cloudfoundry/cf-deployment
-      branch: release-candidate
+      branch: master
 
   - name: buildpacks-ci
     type: git
     source:
       uri: {{buildpacks-ci-git-uri-public}}
-      branch: {{buildpacks-ci-git-uri-public-branch}}
+      branch: cflinuxfs2pipeline # {{buildpacks-ci-git-uri-public-branch}}
 
   - name: cflinuxfs2
     type: git
@@ -95,12 +97,6 @@ resources: #####################################################################
       uri: git@github.com:cloudfoundry/cflinuxfs2-release.git
       branch: master
       private_key: {{cflinuxfs2-release-private-key}}
-
-  - name: diego-release
-    type: git
-    source:
-      uri: https://github.com/cloudfoundry/diego-release
-      branch: release-candidate
 
   - name: cf-release-rc
     type: git
@@ -146,23 +142,10 @@ resources: #####################################################################
           file_name: vars-store.yml
           json_key: {{cflinuxfs2-cf-deployment-gcs-service-account-key}}
 
-  - name: cflinuxfs2-rootfs-smoke-test-deployment
-    type: bosh-deployment
-    source:
-      deployment: rootfs-smoke-test
-
-
-  ## bosh.io Releases ##
-
-  - name: diego-bosh-release
-    type: bosh-io-release
-    source:
-      repository: cloudfoundry/diego-release
-
-  - name: garden-runc-bosh-release
-    type: bosh-io-release
-    source:
-      repository: cloudfoundry/garden-runc-release
+  # - name: cflinuxfs2-rootfs-smoke-test-deployment
+  #   type: bosh-deployment
+  #   source:
+  #     deployment: rootfs-smoke-test
 
   ## bosh.io stemcell ##
 
@@ -298,7 +281,8 @@ jobs: ##########################################################################
     plan:
       - aggregate:
         - get: cf-deployment-concourse-tasks
-        - get: bbl-state
+        - get: env-repo
+          resource: bbl-state
         - get: bosh-deployment
         - get: buildpacks-ci
         - get: receipt-diff
@@ -332,7 +316,57 @@ jobs: ##########################################################################
         ensure:
           put: bbl-state
           params:
-            repository: updated-bbl-state
+            repository: updated-env-repo
+            rebase: true
+      - task: add-gcp-parent-dns-record
+        file: buildpacks-ci/tasks/add-gcp-parent-dns-record/task.yml
+        params:
+          ENV_NAME: cflinuxfs2
+          GCP_SERVICE_ACCOUNT_KEY: {{gcp-service-account-key}}
+
+  - name: deploy-new
+    serial: true
+    serial_groups: [ cflinuxfs2 ]
+    public: true
+    plan:
+      - aggregate:
+        - get: cf-deployment-concourse-tasks
+        - get: env-repo
+          resource: bbl-state
+        - get: bosh-deployment
+        - get: buildpacks-ci
+        - get: receipt-diff
+          trigger: true
+        - get: new-cves
+          passed: [ bbl-up ]
+        - get: stack-s3
+          passed: [ bbl-up ]
+        - get: version
+          passed: [ bbl-up ]
+        - get: receipt-s3
+          passed: [ bbl-up ]
+        - get: cflinuxfs2
+          passed: [ bbl-up ]
+      - task: bbl-up
+        file: cf-deployment-concourse-tasks/bbl-up/task.yml
+        params:
+          BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp-service-account-key}}
+          BBL_GCP_PROJECT_ID: cf-buildpacks
+          BBL_GCP_ZONE: us-east1-c
+          BBL_GCP_REGION: us-east1
+          BBL_IAAS: gcp
+          BBL_LB_CERT: {{cflinuxfs2-lb-cert}}
+          BBL_LB_KEY: {{cflinuxfs2-lb-key}}
+          LB_DOMAIN: cflinuxfs2.buildpacks-gcp.ci.cf-app.com
+          BBL_ENV_NAME: cflinuxfs2
+          BBL_STATE_DIR: cflinuxfs2
+          OPS_FILES: "local-dns.yml"
+        input_mapping:
+          ops-files: bosh-deployment
+        ensure:
+          put: bbl-state
+          params:
+            repository: updated-env-repo
             rebase: true
       - task: add-gcp-parent-dns-record
         file: buildpacks-ci/tasks/add-gcp-parent-dns-record/task.yml
@@ -359,20 +393,11 @@ jobs: ##########################################################################
           - get: cflinuxfs2
             passed: [ bbl-up ]
           - get: cflinuxfs2-release
-            attempts: 3
           - get: buildpacks-ci
           - get: bbl-state
           - get: bosh-lite
           - get: cf-deployment
-            resource: cf-deployment-rc
-            attempts: 3
-          - get: diego-release
-          - get: garden-runc-bosh-release
-            attempts: 3
-          - get: diego-bosh-release
-            attempts: 3
           - get: gcp-stemcell
-            attempts: 3
         - aggregate:
           - task: create-deployment-source-config
             file: buildpacks-ci/tasks/create-deployment-source-config/task.yml
@@ -382,18 +407,18 @@ jobs: ##########################################################################
             file: buildpacks-ci/tasks/overwrite-cflinuxfs2-release/task.yml
             params:
               ROOTFS_RELEASE: cflinuxfs2
-        - put: cflinuxfs2-rootfs-smoke-test-deployment
-          params:
-            source_file: deployment-source-config/source_file.yml
-            manifest: cflinuxfs2-release-artifacts/manifests/manifest.yml
-            releases:
-              - cflinuxfs2-release-artifacts/dev_releases/cflinuxfs2/*.tgz
-            stemcells:
-              - gcp-stemcell/*.tgz
-        - task: run-rootfs-smoke-test
-          file: buildpacks-ci/tasks/run-rootfs-smoke-test/task.yml
-          params:
-            ENV_NAME: cflinuxfs2
+        # - put: cflinuxfs2-rootfs-smoke-test-deployment
+        #   params:
+        #     source_file: deployment-source-config/source_file.yml
+        #     manifest: cflinuxfs2-release-artifacts/manifests/manifest.yml
+        #     releases:
+        #       - cflinuxfs2-release-artifacts/dev_releases/cflinuxfs2/*.tgz
+        #     stemcells:
+        #       - gcp-stemcell/*.tgz
+        # - task: run-rootfs-smoke-test
+        #   file: buildpacks-ci/tasks/run-rootfs-smoke-test/task.yml
+        #   params:
+        #     ENV_NAME: cflinuxfs2
         - put: cflinuxfs2-cf-deployment
           params:
             source_file: deployment-source-config/source_file.yml
@@ -403,11 +428,15 @@ jobs: ##########################################################################
             stemcells:
               - gcp-stemcell/*.tgz
             ops_files:
-              - cf-deployment/operations/use-compiled-releases.yml
-              - buildpacks-ci/deployments/operations/no-canaries.yml
               - cflinuxfs2-release-artifacts/use-dev-release-opsfile.yml
               - cf-deployment/operations/experimental/use-bosh-dns.yml
               - cf-deployment/operations/experimental/use-bosh-dns-for-containers.yml
+              - cf-deployment/operations/experimental/skip-consul-cell-registrations.yml
+              - cf-deployment/operations/experimental/skip-consul-locks.yml
+              - cf-deployment/operations/experimental/disable-consul.yml
+              - cf-deployment/operations/experimental/enable-traffic-to-internal-networks.yml
+              - cf-deployment/operations/experimental/disable-interpolate-service-bindings.yml
+              - buildpacks-ci/deployments/operations/no-canaries.yml
             vars:
               system_domain: cflinuxfs2.buildpacks-gcp.ci.cf-app.com
         on_failure:
@@ -492,7 +521,8 @@ jobs: ##########################################################################
     plan:
       - aggregate:
         - get: cf-deployment-concourse-tasks
-        - get: bbl-state
+        - get: env-repo
+          resource: bbl-state
         - get: buildpacks-ci
         - get: version
           passed: [ delete-deployment ]
@@ -511,7 +541,7 @@ jobs: ##########################################################################
         ensure:
           put: bbl-state
           params:
-            repository: updated-bbl-state
+            repository: updated-env-repo
             rebase: true
 
   - name: release-cflinuxfs2
