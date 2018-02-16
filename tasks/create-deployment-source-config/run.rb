@@ -12,10 +12,13 @@ BBL = "#{Dir.pwd}/bbl-v5.11.5_linux_x86-64"
 
 Dir.chdir("bbl-state/#{ENV['ENV_NAME']}") do
   target_config = {
+    "deployment": "cf",
     "target"=> `#{BBL} director-address`.strip,
-    "client_secret"=> `#{BBL} director-password`.strip,
     "client"=> `#{BBL} director-username`.strip,
-    "ca_cert"=> `#{BBL} director-ca-cert`.strip
+    "client_secret"=> `#{BBL} director-password`.strip,
+    "ca_cert"=> `#{BBL} director-ca-cert`.strip,
+    "jumpbox_url"=> `#{BBL} jumpbox-address`.strip + ':22',
+    "jumpbox_ssh_key"=>YAML.load(open('vars/jumpbox-vars-store.yml').read).dig('jumpbox_ssh','private_key')
   }
 end
 
