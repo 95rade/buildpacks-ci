@@ -41,8 +41,6 @@ resources: #####################################################################
     source:
       uri: https://github.com/cloudfoundry/bosh-deployment.git
       branch: master
-      # uri: https://github.com/TisVictress/bosh-deployment
-      # branch: bosh-lite-safe
   - name: cf-deployment
     type: git
     source:
@@ -142,10 +140,10 @@ resources: #####################################################################
           file_name: vars-store.yml
           json_key: {{cflinuxfs2-cf-deployment-gcs-service-account-key}}
 
-  # - name: cflinuxfs2-rootfs-smoke-test-deployment
-  #   type: bosh-deployment
-  #   source:
-  #     deployment: rootfs-smoke-test
+  - name: cflinuxfs2-rootfs-smoke-test-deployment
+    type: bosh-deployment
+    source:
+      deployment: rootfs-smoke-test
 
   ## bosh.io stemcell ##
 
@@ -357,18 +355,18 @@ jobs: ##########################################################################
             file: buildpacks-ci/tasks/overwrite-cflinuxfs2-release/task.yml
             params:
               ROOTFS_RELEASE: cflinuxfs2
-        # - put: cflinuxfs2-rootfs-smoke-test-deployment
-        #   params:
-        #     source_file: deployment-source-config/source_file.yml
-        #     manifest: cflinuxfs2-release-artifacts/manifests/manifest.yml
-        #     releases:
-        #       - cflinuxfs2-release-artifacts/dev_releases/cflinuxfs2/*.tgz
-        #     stemcells:
-        #       - gcp-stemcell/*.tgz
-        # - task: run-rootfs-smoke-test
-        #   file: buildpacks-ci/tasks/run-rootfs-smoke-test/task.yml
-        #   params:
-        #     ENV_NAME: cflinuxfs2
+        - put: cflinuxfs2-rootfs-smoke-test-deployment
+          params:
+            source_file: deployment-source-config/source_file.yml
+            manifest: cflinuxfs2-release-artifacts/manifests/manifest.yml
+            releases:
+              - cflinuxfs2-release-artifacts/dev_releases/cflinuxfs2/*.tgz
+            stemcells:
+              - gcp-stemcell/*.tgz
+        - task: run-rootfs-smoke-test
+          file: buildpacks-ci/tasks/run-rootfs-smoke-test/task.yml
+          params:
+            ENV_NAME: cflinuxfs2
         - put: cflinuxfs2-cf-deployment
           params:
             source_file: deployment-source-config/source_file.yml
@@ -378,15 +376,11 @@ jobs: ##########################################################################
             stemcells:
               - gcp-stemcell/*.tgz
             ops_files:
+              - cf-deployment/operations/use-compiled-releases.yml
+              - buildpacks-ci/deployments/operations/no-canaries.yml
               - cflinuxfs2-release-artifacts/use-dev-release-opsfile.yml
               - cf-deployment/operations/experimental/use-bosh-dns.yml
               - cf-deployment/operations/experimental/use-bosh-dns-for-containers.yml
-              - cf-deployment/operations/experimental/skip-consul-cell-registrations.yml
-              - cf-deployment/operations/experimental/skip-consul-locks.yml
-              - cf-deployment/operations/experimental/disable-consul.yml
-              - cf-deployment/operations/experimental/enable-traffic-to-internal-networks.yml
-              - cf-deployment/operations/experimental/disable-interpolate-service-bindings.yml
-              - buildpacks-ci/deployments/operations/no-canaries.yml
             vars:
               system_domain: cflinuxfs2.buildpacks-gcp.ci.cf-app.com
         on_failure:
