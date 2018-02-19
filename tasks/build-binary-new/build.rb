@@ -95,7 +95,7 @@ when 'go'
   Dir.chdir('binary-builder') do
     run('./bin/binary-builder', '--name=go', "--version=#{version}", "--sha256=#{data.dig('version', 'sha256')}")
   end
-  old_file = "binary-builder/go#{version}.linux-x64.tar.gz"
+  old_file = "binary-builder/go#{version}.linux-amd64.tar.gz"
   sha = Digest::SHA256.hexdigest(open(old_file).read)
   filename = File.basename(old_file).gsub(/(\.tar.gz)$/, "-#{sha[0..7]}\\1")
   FileUtils.mv(old_file, "artifacts/#{filename}")
