@@ -24,7 +24,7 @@ module Depwatcher
     def self.check() : Array(Internal)
       all.map do |r|
         Internal.new(r.ref)
-      end
+      end.reverse
     end
 
     def self.in(ref : String) : Release

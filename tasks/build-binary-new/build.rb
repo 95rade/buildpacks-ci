@@ -93,7 +93,7 @@ when 'ruby'
   })
 when 'go'
   Dir.chdir('binary-builder') do
-    run('./bin/binary-builder', '--name=go', "--version=#{version}", "--md5=#{data.dig('version', 'md5')}")
+    run('./bin/binary-builder', '--name=go', "--version=#{version}", "--sha256=#{data.dig('version', 'sha256')}")
   end
   old_file = "binary-builder/go-#{version}-linux-x64.tgz"
   sha = Digest::SHA256.hexdigest(open(old_file).read)
