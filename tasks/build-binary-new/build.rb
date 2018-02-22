@@ -25,7 +25,7 @@ out_data[:source][:md5] = data.dig('version', 'md5_digest') if data.dig('version
 out_data[:source][:sha256] = data.dig('version', 'sha256') if data.dig('version', 'sha256')
 
 def run(*args)
-  system({DEBIAN_FRONTEND: 'noninteractive'}, *args)
+  system({'DEBIAN_FRONTEND' => 'noninteractive'}, *args)
   raise "Could not run #{args}" unless $?.success?
 end
 
