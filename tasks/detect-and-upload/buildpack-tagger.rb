@@ -13,7 +13,7 @@ class BuildpackTagger
 
   def run!
     Dir.chdir(buildpack_dir) do
-      tag_to_add = "v#{File.read('VERSION')}".strip
+      tag_to_add = "v#{File.read('VERSION')}".strip rescue "v0.0.0"
       puts "Tag to add: #{tag_to_add}"
 
       existing_tags = Octokit.tags("#{git_repo_org}/#{buildpack_name}").map(&:name)
