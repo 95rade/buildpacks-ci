@@ -119,6 +119,7 @@ when 'python'
   })
 when 'r'
   artifacts = "#{Dir.pwd}/artifacts"
+  source_sha = ''
   Dir.mktmpdir do |dir|
     Dir.chdir(dir) do
       run('apt', 'update')
