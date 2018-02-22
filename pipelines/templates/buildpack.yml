@@ -311,8 +311,6 @@ jobs: ##########################################################################
         - get: buildpack
           resource: buildpack-master
           trigger: true
-        - get: pivotal-buildpack-cached
-        - get: pivotal-buildpack
       - do:
         - task: detect-and-upload
           file: buildpacks-ci/tasks/detect-and-upload/task.yml
