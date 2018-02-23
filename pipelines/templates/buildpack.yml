@@ -101,7 +101,7 @@ resources: #####################################################################
     type: git
     source:
       uri: {{buildpacks-ci-git-uri-public}}
-      branch: {{buildpacks-ci-git-uri-public-branch}}
+      branch: rlang # {{buildpacks-ci-git-uri-public-branch}}
 
 <% unless non_published.include? language %>
   - name: pivnet-buildpack-metadata
@@ -311,8 +311,8 @@ jobs: ##########################################################################
         - get: buildpack
           resource: buildpack-master
           trigger: true
-        - get: pivotal-buildpack-cached
-        - get: pivotal-buildpack
+        # - get: pivotal-buildpack-cached
+        # - get: pivotal-buildpack
       - do:
         - task: detect-and-upload
           file: buildpacks-ci/tasks/detect-and-upload/task.yml
