@@ -36,16 +36,16 @@ module Depwatcher
       end
     end
 
-    def self.check(name : String) : Array(Internal)
-      releases(name).reject do |r|
+    def self.check(repo : String) : Array(Internal)
+      releases(repo).reject do |r|
         r.prerelease || r.draft
       end.map do |r|
         Internal.new(r.ref) if r.ref != ""
       end.compact.sort_by { |i| SemanticVersion.new(i.ref) }
     end
 
-    def self.in(name : String, ref : String) : Release
-      r = releases(name).find do |r|
+    def self.in(repo : String, ref : String) : Release
+      r = releases(repo).find do |r|
         r.ref == ref
       end
       raise "Could not find data for version" unless r
@@ -58,8 +58,8 @@ module Depwatcher
 
     # private
 
-    def self.releases(name : String) : Array(External)
-      response = HTTP::Client.get "https://api.github.com/repos/#{name}/releases"
+    def self.releases(repo : String) : Array(External)
+      response = HTTP::Client.get "https://api.github.com/repos/#{repo}/releases"
       raise "Could not download data from github: code #{response.status_code}" unless response.status_code == 200
       Array(External).from_json(response.body)
     end

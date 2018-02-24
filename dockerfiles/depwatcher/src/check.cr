@@ -7,7 +7,7 @@ source = data["source"]
 
 case type = source["type"].to_s
 when "github_releases"
-  versions = Depwatcher::GithubReleases.check(source["name"].to_s)
+  versions = Depwatcher::GithubReleases.check(source["repo"].to_s)
 when "rubygems"
   versions = Depwatcher::Rubygems.check(source["name"].to_s)
 when "rubygems_cli"
