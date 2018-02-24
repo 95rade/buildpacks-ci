@@ -2,6 +2,7 @@
   pipenv: { python: {} },
   setuptools: { python: {} },
   rubygems: { ruby: {} },
+  yarn: { nodejs: {} },
   go: { go: { line: "minor", keep_master: true } },
   ruby: { ruby: { line: "minor", keep_master: true } },
   python: { python: { line: "minor", keep_master: true } },
@@ -22,7 +23,7 @@ resources:
   type: git
   source:
     uri: {{buildpacks-ci-git-uri-public}}
-    branch: {{buildpacks-ci-git-uri-public-branch}}
+    branch: yarnpkg # {{buildpacks-ci-git-uri-public-branch}}
 
 - name: source-pipenv
   type: depwatcher
@@ -59,6 +60,11 @@ resources:
   source:
     type: rlang
     name: r
+- name: source-yarn
+  type: depwatcher
+  source:
+    type: github_releases
+    name: yarnpkg/yarn
 <% dependencies.each do |dep, _| %>
 - name: buildpacks-bucket-<%= dep %>
   type: s3
