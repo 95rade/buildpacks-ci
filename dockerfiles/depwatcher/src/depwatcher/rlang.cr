@@ -1,16 +1,8 @@
-require "json"
-require "http/client"
+require "./base"
 require "xml"
 
 module Depwatcher
-  module Rlang
-    class Internal
-      JSON.mapping(
-        ref: String,
-      )
-      def initialize(@ref : String)
-      end
-    end
+  class Rlang < Base
     class Release
       JSON.mapping(
         ref: String,
@@ -20,7 +12,7 @@ module Depwatcher
       end
     end
 
-    def self.check() : Array(Internal)
+    def check() : Array(Internal)
       response = HTTP::Client.get "https://svn.r-project.org/R/tags/"
       doc = XML.parse_html(response.body)
       lis = doc.xpath("//li/a")
@@ -34,7 +26,7 @@ module Depwatcher
       end.compact.sort_by { |i| SemanticVersion.new(i.ref) }.last(10)
     end
 
-    def self.in(ref : String) : Release
+    def in(ref : String) : Release
       major = ref.split(".")[0]
       Release.new(ref, "https://cran.cnr.berkeley.edu/src/base/R-#{major}/R-#{ref}.tar.gz")
     end
