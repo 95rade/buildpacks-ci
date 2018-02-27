@@ -13,6 +13,9 @@ module Depwatcher
       end
     end
 
+    def initialize(@client = HTTPClientInsecure.new)
+    end
+
     def check() : Array(Internal)
       releases.map do |r|
         Internal.new(r.ref)
@@ -28,8 +31,6 @@ module Depwatcher
     end
 
     private def releases() : Array(Release)
-      # context = OpenSSL::SSL::Context::Client.insecure
-      # response = HTTP::Client.get("https://golang.org/dl/", tls: context)
       response = client.get("https://golang.org/dl/")
       doc = XML.parse_html(response)
       tds = doc.xpath("//td[contains(text(),'Source')]")
