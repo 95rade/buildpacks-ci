@@ -6,8 +6,7 @@ Spec2.describe Depwatcher::Rlang do
   let(client) { HTTPClientMock.new }
   subject { described_class.new.tap { |s| s.client = client } }
   before do
-    client.stub_get("https://www.python.org/downloads/", File.read(__DIR__+"/../fixtures/python.html"))
-    client.stub_get("https://www.python.org/downloads/release/python-355/", File.read(__DIR__+"/../fixtures/python-355.html"))
+    client.stub_get("https://svn.r-project.org/R/tags/", File.read(__DIR__+"/../fixtures/rlang.html"))
   end
 
   describe "#check" do

@@ -13,8 +13,8 @@ module Depwatcher
     end
 
     def check() : Array(Internal)
-      response = HTTP::Client.get "https://svn.r-project.org/R/tags/"
-      doc = XML.parse_html(response.body)
+      response = client.get "https://svn.r-project.org/R/tags/"
+      doc = XML.parse_html(response)
       lis = doc.xpath("//li/a")
       raise "Could not parse r svn website" unless lis.is_a?(XML::NodeSet)
 
