@@ -24,7 +24,7 @@ p out
 
   def latest?
     @matching_deps.all? do |d|
-      Gem::Version.new(@dep['version']) > Gem::Version.new(d['version'])
+      Gem::Version.new(@dep['version']) >= Gem::Version.new(d['version'])
     end
   end
 
