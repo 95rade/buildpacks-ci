@@ -3,6 +3,7 @@ require 'json'
 require 'nokogiri'
 require 'open-uri'
 require 'yaml'
+require "../../lib/tracker-client"
 
 def current_pecl_version(name)
   doc = Nokogiri::XML(open("https://pecl.php.net/feeds/pkg_#{name}.rss")) rescue nil 
