@@ -93,7 +93,7 @@ extensions.keys.sort_by(&:name).each do |key|
     val = "**#{val}**" if val && val != latest
     data << val
   end
-  description += data.join(' | ') unless data[2,3].all?(&:nil?)
+  description += data.join(' | ') + "\n" unless data[2,3].all?(&:nil?)
 end
 
 description += <<-DESCRIPTION
@@ -108,6 +108,7 @@ CF_PASSWORD=admin BUNDLE_GEMFILE=cf.Gemfile bundle exec buildpack-build --host=l
 Then stop the above docker cassandra container
 DESCRIPTION
 
+puts description
 
 tracker_client = TrackerClient.new(
   ENV.fetch('TRACKER_API_TOKEN'),
