@@ -7,6 +7,7 @@
   ruby: { ruby: { line: "minor", keep_master: true } },
   python: { python: { line: "minor", keep_master: true } },
   r: { r: { line: "minor", keep_master: true } },
+  nginx: { nginx: { line: "minor", keep_master: true } },
   # node: { node: { line: "major", keep_master: true }, ruby: { line: "major", keep_master: false } },
 } %>
 resource_types:
@@ -23,7 +24,7 @@ resources:
   type: git
   source:
     uri: {{buildpacks-ci-git-uri-public}}
-    branch: {{buildpacks-ci-git-uri-public-branch}}
+    branch: buildnginx # {{buildpacks-ci-git-uri-public-branch}}
 
 - name: source-pipenv
   type: depwatcher
@@ -66,6 +67,12 @@ resources:
     type: github_releases
     repo: yarnpkg/yarn
     name: yarn
+- name: source-nginx
+  type: depwatcher
+  source:
+    type: github_releases
+    repo: nginx/nginx
+    name: nginx
 <% dependencies.each do |dep, _| %>
 - name: buildpacks-bucket-<%= dep %>
   type: s3
