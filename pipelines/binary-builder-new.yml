@@ -70,8 +70,7 @@ resources:
 - name: source-nginx
   type: depwatcher
   source:
-    type: github_releases
-    repo: nginx/nginx
+    type: nginx
     name: nginx
 <% dependencies.each do |dep, _| %>
 - name: buildpacks-bucket-<%= dep %>
