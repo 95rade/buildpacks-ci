@@ -26,7 +26,7 @@ new_versions = manifest['dependencies'].select { |d| d['name'] == name }.map { |
 
 added = (new_versions - old_versions).uniq.sort
 removed = (old_versions - new_versions).uniq.sort
-rebuilt = old_versions.include?(d['version'])
+rebuilt = old_versions.include?(version)
 
 if added.length == 0 && !rebuilt
   puts 'SKIP: Built version is not required by buildpack.'
