@@ -172,20 +172,21 @@ when 'nginx'
           # '--with-stream=dynamic',
         )
         run('make')
-        system({'DEBIAN_FRONTEND' => 'noninteractive', 'DESTDIR'=>destdir}, 'make install')
+        system({'DEBIAN_FRONTEND' => 'noninteractive', 'DESTDIR'=>"#{destdir}/nginx"}, 'make install')
         raise "Could not run make install" unless $?.success?
 
         Dir.chdir(destdir) do
-          run('rm', '-Rf', './html/', './conf/*')
-          run('tar', 'zcvf', "#{artifacts}/nginx-v#{version}.tgz", '.')
+          run('rm', '-Rf', './nginx/html', './nginx/conf')
+          run('mkdir', 'nginx/conf')
+          run('tar', 'zcvf', "#{artifacts}/nginx-#{version}.tgz", '.')
         end
       end
     end
   end
 
-  sha = Digest::SHA256.hexdigest(open("artifacts/nginx-v#{version}.tgz").read)
-  filename = "nginx-v#{version}-#{sha[0..7]}.tgz"
-  FileUtils.mv("artifacts/nginx-v#{version}.tgz", "artifacts/#{filename}")
+  sha = Digest::SHA256.hexdigest(open("artifacts/nginx-#{version}.tgz").read)
+  filename = "nginx-#{version}-linux-x64-#{sha[0..7]}.tgz"
+  FileUtils.mv("artifacts/nginx-#{version}.tgz", "artifacts/#{filename}")
 
   out_data.merge!({
     source_pgp: source_pgp,
