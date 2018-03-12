@@ -169,7 +169,7 @@ when 'nginx'
           '--with-pcre-jit',
           '--with-cc-opt=-fPIE -pie',
           '--with-ld-opt=-fPIE -pie -z now',
-          '--with-stream=dynamic',
+          # '--with-stream=dynamic',
         )
         run('make')
         system({'DEBIAN_FRONTEND' => 'noninteractive', 'DESTDIR'=>"#{destdir}/nginx"}, 'make install')
