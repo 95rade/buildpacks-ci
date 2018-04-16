@@ -90,13 +90,6 @@ resources:
       uri: https://github.com/cloudfoundry/cf-acceptance-tests
       branch: master
 
-  - name: wats
-    type: git
-    source:
-      uri: https://github.com/idoru/wats
-      branch: add-credhub-assist-mode-tests
-      # After https://github.com/cloudfoundry/wats/pull/17 merged change to => uri: https://github.com/cloudfoundry/wats
-
   - name: bal-cf-deployment
     type: bosh-deployment
     source:
@@ -245,6 +238,7 @@ jobs:
             vars:
               system_domain: bal.buildpacks-gcp.ci.cf-app.com
         - task: set-up-environment-for-credhub
+          attempts: 3
           file: buildpacks-ci/tasks/set-up-environment-for-credhub/task.yml
           params:
             CI_CF_USERNAME: {{ci-cf-username}}
@@ -276,7 +270,7 @@ jobs:
           resource: cats-concourse-task
         - get: cf-acceptance-tests
       - do:
-        - task: write-cats-config
+        - task: write-cats-config-for-windows2012R2
           file: buildpacks-ci/tasks/write-cats-config/task.yml
           params:
             CI_CF_USERNAME: {{ci-cf-username}}
@@ -285,47 +279,30 @@ jobs:
             DIEGO_DOCKER_ON: true
             CREDHUB_MODE: assisted
             CREDHUB_CLIENT_SECRET: {{ci-cf-bal-credhub-client-secret}}
-        - task: add-flake-attempts-to-cats
+            WINDOWS_STACK: windows2012R2
+        - task: add-flake-attempts-to-cats-for-windows2012R2
           file: buildpacks-ci/tasks/add-flake-attempts-to-cats/task.yml
-        - task: cats
+        - task: cats-for-windows2012R2
           attempts: 3
           file: cats-concourse-task/task.yml
           params:
             NODES: 12
             CONFIG_FILE_PATH: integration_config.json
-        on_failure:
-          put: failure-alert
-          params:
-            text: "$BUILD_PIPELINE_NAME $BUILD_JOB_NAME job on Concourse failed! \n Check: $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME"
-            channel: {{concourse-job-failure-notifications-slack-channel}}
-            username: concourse
-            icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
-
-  - name: wats-2012R2
-    serial: true
-    serial_groups: [bal]
-    public: true
-    plan:
-      - aggregate:
-        - get: monday-funday
-          trigger: true
-          passed: [cats]
-        - get: bal-develop
-          trigger: true
-          passed: [cats]
-        - get: buildpacks-ci
-        - get: wats
-      - do:
-        - task: write-wats-config
-          file: buildpacks-ci/tasks/write-wats-config/task.yml
+        - task: write-cats-config-for-windows2016
+          file: buildpacks-ci/tasks/write-cats-config/task.yml
           params:
             CI_CF_USERNAME: {{ci-cf-username}}
             CI_CF_PASSWORD: {{ci-cf-bal-password}}
             APPS_DOMAIN: bal.buildpacks-gcp.ci.cf-app.com
             DIEGO_DOCKER_ON: true
-        - task: wats
+            CREDHUB_MODE: assisted
+            CREDHUB_CLIENT_SECRET: {{ci-cf-bal-credhub-client-secret}}
+            WINDOWS_STACK: windows2016
+        - task: add-flake-attempts-to-cats-for-windows2016
+          file: buildpacks-ci/tasks/add-flake-attempts-to-cats/task.yml
+        - task: cats-for-windows2016
           attempts: 3
-          file: buildpacks-ci/tasks/run-wats/task.yml
+          file: cats-concourse-task/task.yml
           params:
             NODES: 12
             CONFIG_FILE_PATH: integration_config.json
@@ -345,7 +322,7 @@ jobs:
         - get: buildpacks-ci
         - get: repo
           resource: bal-develop
-          passed: [wats-2012R2]
+          passed: [cats]
           trigger: true
       - task: github-set-status-success
         file: buildpacks-ci/tasks/set-status-success/task.yml
@@ -400,11 +377,11 @@ jobs:
       - aggregate:
         - get: monday-funday
           trigger: true
-          passed: [wats-2012R2]
+          passed: [cats]
         - get: bbl-state
         - get: buildpacks-ci
         - get: bal-develop
-          passed: [wats-2012R2]
+          passed: [cats]
           trigger: true
       - task: create-deployment-source-config
         file: buildpacks-ci/tasks/create-deployment-source-config/task.yml
