@@ -30,7 +30,7 @@ resources:
     type: git
     source:
       uri: {{buildpacks-ci-git-uri-public}}
-      branch: {{buildpacks-ci-git-uri-public-branch}}
+      branch: bal-win-2016 #{{buildpacks-ci-git-uri-public-branch}}
 
   - name: bal-develop
     type: git
@@ -118,6 +118,11 @@ resources:
     source:
       name: bosh-google-kvm-windows2012R2-go_agent
 
+  - name: windows2016-stemcell
+    type: bosh-io-stemcell
+    source:
+      name: bosh-google-kvm-windows2016-go_agent
+
   - name: failure-alert
     type: slack-notification
     source:
@@ -186,7 +191,7 @@ jobs:
 
   - name: deploy-cf-and-diego-to-cf-release
     serial: true
-    serial_groups: [acceptance-tests]
+    serial_groups: [bal]
     public: true
     plan:
       - do:
@@ -201,6 +206,7 @@ jobs:
           - get: diego-release
           - get: cf-deployment
           - get: windows2012-stemcell
+          - get: windows2016-stemcell
           - get: bbl-state
           - get: gcp-stemcell
             attempts: 3
@@ -219,18 +225,23 @@ jobs:
             stemcells:
               - gcp-stemcell/*.tgz
               - windows2012-stemcell/*.tgz
+              - windows2016-stemcell/*.tgz
             ops_files:
             # - cf-deployment/operations/use-compiled-releases.yml
             - diego-release-artifacts/use-diego-dev-release.yml
             - buildpacks-ci/deployments/operations/no-canaries.yml
             - cf-deployment/operations/scale-to-one-az.yml
             - cf-deployment/operations/windows-cell.yml
+            - cf-deployment/operations/windows2016-cell.yml
             - cf-deployment/operations/experimental/enable-instance-identity-credentials.yml
             - cf-deployment/operations/experimental/enable-instance-identity-credentials-windows.yml
+            - cf-deployment/operations/experimental/enable-instance-identity-credentials-windows2016.yml
             - cf-deployment/operations/experimental/secure-service-credentials.yml
             - cf-deployment/operations/experimental/secure-service-credentials-windows-cell.yml
+            - cf-deployment/operations/experimental/secure-service-credentials-windows2016-cell.yml
             - cf-deployment/operations/experimental/use-bosh-dns.yml
             - cf-deployment/operations/experimental/use-bosh-dns-for-containers.yml
+            - cf-deployment/operations/experimental/use-bosh-dns-for-windows2016-containers.yml
             vars:
               system_domain: bal.buildpacks-gcp.ci.cf-app.com
         - task: set-up-environment-for-credhub
@@ -250,7 +261,7 @@ jobs:
 
   - name: cats
     serial: true
-    serial_groups: [acceptance-tests]
+    serial_groups: [bal]
     public: true
     plan:
       - aggregate:
@@ -292,7 +303,7 @@ jobs:
 
   - name: wats-2012R2
     serial: true
-    serial_groups: [acceptance-tests]
+    serial_groups: [bal]
     public: true
     plan:
       - aggregate:
@@ -383,6 +394,7 @@ jobs:
 
   - name: destroy-cf-deployment
     serial: true
+    serial_groups: [bal]
     public: true
     plan:
       - aggregate:
@@ -407,6 +419,7 @@ jobs:
 
   - name: bbl-destroy
     serial: true
+    serial_groups: [bal]
     public: true
     plan:
       - aggregate:
